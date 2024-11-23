@@ -462,7 +462,7 @@ namespace АИС_банка_кредитов
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void button3_Click_1(object sender, EventArgs e)
         {
 
             // Получаем значения из полей ввода
@@ -486,7 +486,7 @@ namespace АИС_банка_кредитов
             LoadKreditData();
         }
 
-        private void button7_Click(object sender, EventArgs e)
+        private void button7_Click_1(object sender, EventArgs e)
         {
             // Получаем выбранную строку в DataGridView
             DataGridViewRow selectedRow = dataGridView3.SelectedRows[0];
@@ -628,15 +628,32 @@ namespace АИС_банка_кредитов
                 textBox50.Text,
                 textBox51.Text
             );
+
+            // Обновляем DataGridView
+            LoadPersonalData();
         }
 
-        private void button12_Click_1(object sender, EventArgs e)
+        private void button12_Click(object sender, EventArgs e)
         {
             // Получаем выбранную строку в DataGridView
+            if (dataGridView4.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите сотрудника для удаления.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             DataGridViewRow selectedRow = dataGridView4.SelectedRows[0];
 
             // Удаляем данные из базы данных
-            DeletePersonalDataFromDatabase(selectedRow.Cells[0].Value.ToString());
+            try
+            {
+                DeletePersonalDataFromDatabase(selectedRow.Cells[0].Value.ToString());
+                LoadPersonalData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при удалении данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void InsertPersonalDataToDatabase(string id_sotrudnik,string familia,string name,string lastname,string data_roda,string seria_pasport,string namber_pasport,string grash,string address,string number_phone,string email,string dolg,string data_rabota,string zp)
@@ -695,7 +712,7 @@ namespace АИС_банка_кредитов
             }
         }
 
-        private void button13_Click_1(object sender, EventArgs e)
+        private void button13_Click(object sender, EventArgs e)
         {
             // Получаем значения из полей ввода
             string id_plata = textBox52.Text;
@@ -710,9 +727,6 @@ namespace АИС_банка_кредитов
 
             // Вставляем данные в базу данных
             InsertPlatechDataToDatabase(id_plata, id_credit, data_plata, tip_plata, vid_plata,summa_plata,ostatok_dolga);
-
-            // Обновляем DataGridView
-            LoadPlatechData();
         }
 
         private void button14_Click_1(object sender, EventArgs e)
@@ -738,13 +752,24 @@ namespace АИС_банка_кредитов
         private void button15_Click_1(object sender, EventArgs e)
         {
             // Получаем выбранную строку в DataGridView
+            if (dataGridView5.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите клиента для удаления.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             DataGridViewRow selectedRow = dataGridView5.SelectedRows[0];
 
             // Удаляем данные из базы данных
-            DeletePlatechDataFromDatabase(selectedRow.Cells[0].Value.ToString());
-
-            // Обновляем DataGridView
-            LoadPlatechData();
+            try
+            {
+                DeletePlatechDataFromDatabase(selectedRow.Cells[0].Value.ToString());
+                LoadPlatechData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при удалении данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void InsertPlatechDataToDatabase(string id_plata,string id_credit,string data_plata,string tip_plata,string vid_plata,string summa_plata,string ostatok_dolga)
@@ -787,6 +812,11 @@ namespace АИС_банка_кредитов
                 command.Parameters.AddWithValue("@id", id);
                 command.ExecuteNonQuery();
             }
-        } 
+        }
+
+        private void tabPage3_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

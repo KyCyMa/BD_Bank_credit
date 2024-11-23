@@ -527,6 +527,7 @@
             this.button12.TabIndex = 31;
             this.button12.Text = "Удалить";
             this.button12.UseVisualStyleBackColor = true;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
             // 
             // tabPage3
             // 
@@ -564,6 +565,7 @@
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Кредит";
             this.tabPage3.UseVisualStyleBackColor = true;
+            this.tabPage3.Click += new System.EventHandler(this.tabPage3_Click);
             // 
             // dataGridView3
             // 
@@ -782,6 +784,7 @@
             this.button3.TabIndex = 47;
             this.button3.Text = "Добавить";
             this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click_1);
             // 
             // button7
             // 
@@ -792,6 +795,7 @@
             this.button7.TabIndex = 48;
             this.button7.Text = "Изменить";
             this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click_1);
             // 
             // button9
             // 
@@ -802,6 +806,7 @@
             this.button9.TabIndex = 49;
             this.button9.Text = "Удалить";
             this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
             // tabPage2
             // 
@@ -1572,6 +1577,7 @@
             this.button13.TabIndex = 15;
             this.button13.Text = "Добавить";
             this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
             // 
             // button14
             // 
@@ -1581,6 +1587,7 @@
             this.button14.TabIndex = 16;
             this.button14.Text = "Изменить";
             this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click_1);
             // 
             // button15
             // 
@@ -1590,6 +1597,7 @@
             this.button15.TabIndex = 17;
             this.button15.Text = "Удалить";
             this.button15.UseVisualStyleBackColor = true;
+            this.button15.Click += new System.EventHandler(this.button15_Click_1);
             // 
             // Form3
             // 

@@ -7,16 +7,12 @@ using System.Data.SQLite;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using System.Xml.Linq;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 
 
 
@@ -25,6 +21,8 @@ namespace АИС_банка_кредитов
     public partial class Form3 : Form
     {
         private SQLiteConnection connection;
+        private SQLiteDataAdapter adapter;
+        private DataTable dt;
 
         public Form3()
         {
@@ -35,6 +33,47 @@ namespace АИС_банка_кредитов
             LoadKreditData();
             LoadPlatechData();
             LoadPersonalData();
+
+            // Заполнение comboBox1 данными из таблицы Клиент
+            string q1 = "SELECT ID, Фамилия || ' ' || Имя AS Full FROM Клиент";
+            SQLiteDataAdapter da1 = new SQLiteDataAdapter(q1, connection);
+            DataTable dt1 = new DataTable();
+            da1.Fill(dt1);
+            comboBox1.DataSource = dt1;
+            comboBox1.DisplayMember = "Full"; // Отображаемое значение в комбобоксе
+            comboBox1.ValueMember = "ID";        // ID клиента
+
+            string q2 = "SELECT ID, ФИО_Клиента || ' ' || Название_банка AS Full FROM Договор";
+            SQLiteDataAdapter da2 = new SQLiteDataAdapter(q2, connection);
+            DataTable dt2 = new DataTable();
+            da2.Fill(dt2);
+            comboBox2.DataSource = dt2;
+            comboBox2.DisplayMember = "Full"; //отображение значенийв combobox
+            comboBox2.ValueMember = "ID"; // ID договора
+
+            string q3 = "SELECT ID_Кредита, Сумма_кредита || ' ' || Способ_погашения AS Full FROM Кредит";
+            SQLiteDataAdapter da3 = new SQLiteDataAdapter(q3, connection);
+            DataTable dt3 = new DataTable();
+            da1.Fill(dt3);
+            comboBox3.DataSource = dt3;
+            comboBox3.DisplayMember = "Full"; // Отображаемое значение в комбобоксе
+            comboBox3.ValueMember = "ID";        // ID клиента
+
+            string q4 = "SELECT ID_Платежа, Дата_платежа || ' ' || Сумма_платежа AS Full FROM Платеж";
+            SQLiteDataAdapter da4 = new SQLiteDataAdapter(q4, connection);
+            DataTable dt4 = new DataTable();
+            da1.Fill(dt4);
+            comboBox4.DataSource = dt4;
+            comboBox4.DisplayMember = "Full"; // Отображаемое значение в комбобоксе
+            comboBox4.ValueMember = "ID";        // ID клиента
+
+            string q5 = "SELECT ID_Сотрудника, Фамилия, Имя || ' ' || Должность AS Full FROM Сотрудник";
+            SQLiteDataAdapter da5 = new SQLiteDataAdapter(q5, connection);
+            DataTable dt5 = new DataTable();
+            da1.Fill(dt5);
+            comboBox3.DataSource = dt5;
+            comboBox3.DisplayMember = "Full"; // Отображаемое значение в комбобоксе
+            comboBox3.ValueMember = "ID";        // ID клиента
         }
 
         private void ConnectToDatabase()
@@ -351,7 +390,7 @@ namespace АИС_банка_кредитов
             string proc = textBox24.Text;
             string sposob = textBox25.Text;
             string data_reg = textBox26.Text;
-            
+
             // Вставляем данные в базу данных
             InsertDogovorDataToDatabase(id, FIO, INN_client, seria_pasporta, number_pasporta, address, name_bank, INN_bank, summa, srok, proc, sposob, data_reg);
 
@@ -408,7 +447,7 @@ namespace АИС_банка_кредитов
             }
         }
 
-        private void InsertDogovorDataToDatabase( string id,string FIO,string INN_client,string seria_pasporta,string number_pasporta,string address,string name_bank,string INN_bank,string summa,string srok,string proc,string sposob,string data_reg)
+        private void InsertDogovorDataToDatabase(string id, string FIO, string INN_client, string seria_pasporta, string number_pasporta, string address, string name_bank, string INN_bank, string summa, string srok, string proc, string sposob, string data_reg)
         {
             using (SQLiteCommand command = new SQLiteCommand(connection))
             {
@@ -480,7 +519,7 @@ namespace АИС_банка_кредитов
 
 
             // Вставляем данные в базу данных
-            InsertKreditDataToDatabase(id_credit, id_client, id_dogovor, summa, cell_credit, vid_credita, srok, status, data_vidachi,valuta,sposob);
+            InsertKreditDataToDatabase(id_credit, id_client, id_dogovor, summa, cell_credit, vid_credita, srok, status, data_vidachi, valuta, sposob);
 
             // Обновляем DataGridView
             LoadKreditData();
@@ -656,7 +695,7 @@ namespace АИС_банка_кредитов
             }
         }
 
-        private void InsertPersonalDataToDatabase(string id_sotrudnik,string familia,string name,string lastname,string data_roda,string seria_pasport,string namber_pasport,string grash,string address,string number_phone,string email,string dolg,string data_rabota,string zp)
+        private void InsertPersonalDataToDatabase(string id_sotrudnik, string familia, string name, string lastname, string data_roda, string seria_pasport, string namber_pasport, string grash, string address, string number_phone, string email, string dolg, string data_rabota, string zp)
         {
             using (SQLiteCommand command = new SQLiteCommand(connection))
             {
@@ -726,7 +765,7 @@ namespace АИС_банка_кредитов
 
 
             // Вставляем данные в базу данных
-            InsertPlatechDataToDatabase(id_plata, id_credit, data_plata, tip_plata, vid_plata,summa_plata,ostatok_dolga);
+            InsertPlatechDataToDatabase(id_plata, id_credit, data_plata, tip_plata, vid_plata, summa_plata, ostatok_dolga);
         }
 
         private void button14_Click_1(object sender, EventArgs e)
@@ -772,7 +811,7 @@ namespace АИС_банка_кредитов
             }
         }
 
-        private void InsertPlatechDataToDatabase(string id_plata,string id_credit,string data_plata,string tip_plata,string vid_plata,string summa_plata,string ostatok_dolga)
+        private void InsertPlatechDataToDatabase(string id_plata, string id_credit, string data_plata, string tip_plata, string vid_plata, string summa_plata, string ostatok_dolga)
         {
             using (SQLiteCommand command = new SQLiteCommand(connection))
             {
@@ -818,5 +857,116 @@ namespace АИС_банка_кредитов
         {
 
         }
+        //Функция для поиска определнного клиента
+        private void button16_Click(object sender, EventArgs e)
+        {
+            string query;
+            if (string.IsNullOrEmpty(textBox59.Text))
+            {
+                // Если поле поиска пустое, загрузить все данные
+                query = "SELECT * FROM Клиент";
+            }
+            else
+            {
+                //Поиск по выбранному критерию
+                string selectedField = comboBox1.SelectedItem.ToString();
+                string searchText = textBox59.Text;
+                query = $"SELECT * FROM Клиент WHERE {selectedField} LIKE '%{searchText}%'";
+            }
+            adapter = new SQLiteDataAdapter(query, connection);
+            dt = new DataTable();
+            adapter.Fill(dt);
+            dataGridView1.DataSource = dt;
+        }
+
+        //Функция поиска договра
+        private void button17_Click(object sender, EventArgs e)
+        {
+            string query;
+            if (string.IsNullOrEmpty(textBox60.Text))
+            {
+                // Если поле поиска пустое, загрузить все данные
+                query = "SELECT * FROM Договор";
+            }
+            else
+            {
+                //Поиск по выбранному критерию
+                string selectedField = comboBox2.SelectedItem.ToString();
+                string searchText = textBox60.Text;
+                query = $"SELECT * FROM Договор WHERE {selectedField} LIKE '%{searchText}%'";
+            }
+            adapter = new SQLiteDataAdapter(query, connection);
+            dt = new DataTable();
+            adapter.Fill(dt);
+            dataGridView2.DataSource = dt;
+        }
+
+        //Функция поиска кредита
+        private void button18_Click(object sender, EventArgs e)
+        {
+            string query;
+            if (string.IsNullOrEmpty(textBox61.Text))
+            {
+                // Если поле поиска пустое, загрузить все данные
+                query = "SELECT * FROM Кредит";
+            }
+            else
+            {
+                //Поиск по выбранному критерию
+                string selectedField = comboBox3.SelectedItem.ToString();
+                string searchText = textBox61.Text;
+                query = $"SELECT * FROM Кредит WHERE {selectedField} LIKE '%{searchText}%'";
+            }
+            adapter = new SQLiteDataAdapter(query, connection);
+            dt = new DataTable();
+            adapter.Fill(dt);
+            dataGridView3.DataSource = dt;
+        }
+
+        //Функция поиска сотрудника
+        private void button19_Click(object sender, EventArgs e)
+        {
+            string query;
+            if (string.IsNullOrEmpty(textBox62.Text))
+            {
+                // Если поле поиска пустое, загрузить все данные
+                query = "SELECT * FROM Сотрудник";
+            }
+            else
+            {
+                //Поиск по выбранному критерию
+                string selectedField = comboBox4.SelectedItem.ToString();
+                string searchText = textBox62.Text;
+                query = $"SELECT * FROM Сотрудник WHERE {selectedField} LIKE '%{searchText}%'";
+            }
+            adapter = new SQLiteDataAdapter(query, connection);
+            dt = new DataTable();
+            adapter.Fill(dt);
+            dataGridView4.DataSource = dt;
+        }
+
+        //Функция поиска
+        private void button20_Click(object sender, EventArgs e)
+        {
+            string query;
+            if (string.IsNullOrEmpty(textBox63.Text))
+            {
+                // Если поле поиска пустое, загрузить все данные
+                query = "SELECT * FROM Платеж";
+            }
+            else
+            {
+                //Поиск по выбранному критерию
+                string selectedField = comboBox5.SelectedItem.ToString();
+                string searchText = textBox63.Text;
+                query = $"SELECT * FROM Платеж WHERE {selectedField} LIKE '%{searchText}%'";
+            }
+            adapter = new SQLiteDataAdapter(query, connection);
+            dt = new DataTable();
+            adapter.Fill(dt);
+            dataGridView5.DataSource = dt;
+        }
     }
 }
+    
+

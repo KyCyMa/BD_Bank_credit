@@ -28,6 +28,7 @@ namespace АИС_банка_кредитов
 
         public Form3()
         {
+            InitializeFormComponents();
             InitializeComponent();
             ConnectToDatabase();
             LoadClientData();
@@ -196,26 +197,41 @@ namespace АИС_банка_кредитов
                 MessageBox.Show($"Ошибка при добавлении данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        private bool ValidateClientData(string INN, string data_roda, string seria_pasporta, string number_pasporta, string data_reg)
+        private bool ValidateClientData(string INN, string data_roda, string seria_pasporta, string number_pasport, string data_reg)
         {
             // Проверка длины ИНН
             if (INN.Length > 8)
+            {
+                MessageBox.Show("Введен неправильный ИНН. Формат ввода - 8 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
+            }
 
             // Проверка формата даты
             if (!DateTime.TryParseExact(data_roda, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out _))
+            {
+                MessageBox.Show("Введена неправильная дата рождения. Формат ввода дд.мм.гггг.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
+            }    
 
             if (!DateTime.TryParseExact(data_reg, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out _))
+            {
+                MessageBox.Show("Введена неправильная дата регистрации. Формат ввода дд.мм.ггггг.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
+            }    
 
             // Проверка серии паспорта
             if (seria_pasporta.Length > 4 || !seria_pasporta.All(char.IsDigit))
+            {
+                MessageBox.Show("Введена неправильная серия паспорта. Формат ввода - 4 цифры.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
+            }
 
             // Проверка номера паспорта
-            if (number_pasporta.Length > 6 || !number_pasporta.All(char.IsDigit))
+            if (number_pasport.Length > 6 || !number_pasport.All(char.IsDigit))
+            {
+                MessageBox.Show("Введен неправильный носер паспорта. Формат ввода - 6 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
+            }
 
             return true;
         }
@@ -325,6 +341,26 @@ namespace АИС_банка_кредитов
             }
         }
 
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dataGridView1.SelectedRows.Count > 0)
+            {
+                DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
+                textBox2.Text = selectedRow.Cells["Фамилия"].Value.ToString();
+                textBox3.Text = selectedRow.Cells["Имя"].Value.ToString();
+                textBox4.Text = selectedRow.Cells["Отчество"].Value.ToString();
+                textBox5.Text = selectedRow.Cells["ИНН"].Value.ToString();
+                textBox6.Text = selectedRow.Cells["Дата_рождения"].Value.ToString();
+                textBox7.Text = selectedRow.Cells["Серия_паспорта"].Value.ToString();
+                textBox8.Text = selectedRow.Cells["Номер_паспорта"].Value.ToString();
+                textBox9.Text = selectedRow.Cells["Гражданство"].Value.ToString();
+                textBox10.Text = selectedRow.Cells["Адрес"].Value.ToString();
+                textBox11.Text = selectedRow.Cells["Номер_телефона"].Value.ToString();
+                textBox12.Text = selectedRow.Cells["Email"].Value.ToString();
+                textBox13.Text = selectedRow.Cells["Дата_регистрации"].Value.ToString();
+            }
+        }
+
         private void DeleteKlientDataFromDatabase(string id)
         {
             using (SQLiteCommand command = new SQLiteCommand(connection))
@@ -351,12 +387,11 @@ namespace АИС_банка_кредитов
             string proc = textBox24.Text;
             string sposob = textBox25.Text;
             string data_reg = textBox26.Text;
-            
+
             // Вставляем данные в базу данных
             InsertDogovorDataToDatabase(id, FIO, INN_client, seria_pasporta, number_pasporta, address, name_bank, INN_bank, summa, srok, proc, sposob, data_reg);
 
-            // Обновляем DataGridView
-            LoadDogovorData();
+            return true;
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -706,7 +741,7 @@ namespace АИС_банка_кредитов
         {
             using (SQLiteCommand command = new SQLiteCommand(connection))
             {
-                command.CommandText = "DELETE FROM specificatoins WHERE ID = @id";
+                command.CommandText = "DELETE FROM Сотрудник WHERE ID = @id";
                 command.Parameters.AddWithValue("@id", id);
                 command.ExecuteNonQuery();
             }
@@ -817,6 +852,72 @@ namespace АИС_банка_кредитов
         private void tabPage3_Click(object sender, EventArgs e)
         {
 
+        //Функция поиска кредита
+        private void button18_Click(object sender, EventArgs e)
+        {
+            string query;
+            if (string.IsNullOrEmpty(textBox61.Text))
+            {
+                // Если поле поиска пустое, загрузить все данные
+                query = "SELECT * FROM Кредит";
+            }
+            else
+            {
+                //Поиск по выбранному критерию
+                string selectedField = comboBox3.SelectedItem.ToString();
+                string searchText = textBox61.Text;
+                query = $"SELECT * FROM Кредит WHERE {selectedField} LIKE '%{searchText}%'";
+            }
+            adapter = new SQLiteDataAdapter(query, connection);
+            dt = new DataTable();
+            adapter.Fill(dt);
+            dataGridView3.DataSource = dt;
+        }
+
+        //Функция поиска сотрудника
+        private void button19_Click(object sender, EventArgs e)
+        {
+            string query;
+            if (string.IsNullOrEmpty(textBox62.Text))
+            {
+                // Если поле поиска пустое, загрузить все данные
+                query = "SELECT * FROM Сотрудник";
+            }
+            else
+            {
+                //Поиск по выбранному критерию
+                string selectedField = comboBox4.SelectedItem.ToString();
+                string searchText = textBox62.Text;
+                query = $"SELECT * FROM Сотрудник WHERE {selectedField} LIKE '%{searchText}%'";
+            }
+            adapter = new SQLiteDataAdapter(query, connection);
+            dt = new DataTable();
+            adapter.Fill(dt);
+            dataGridView4.DataSource = dt;
+        }
+
+        //Функция поиска
+        private void button20_Click(object sender, EventArgs e)
+        {
+            string query;
+            if (string.IsNullOrEmpty(textBox63.Text))
+            {
+                // Если поле поиска пустое, загрузить все данные
+                query = "SELECT * FROM Платеж";
+            }
+            else
+            {
+                //Поиск по выбранному критерию
+                string selectedField = comboBox5.SelectedItem.ToString();
+                string searchText = textBox63.Text;
+                query = $"SELECT * FROM Платеж WHERE {selectedField} LIKE '%{searchText}%'";
+            }
+            adapter = new SQLiteDataAdapter(query, connection);
+            dt = new DataTable();
+            adapter.Fill(dt);
+            dataGridView5.DataSource = dt;
         }
     }
 }
+    
+

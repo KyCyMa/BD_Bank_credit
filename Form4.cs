@@ -32,10 +32,5 @@ namespace АИС_банка_кредитов
             }
 
         }
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-            // Заменяем каждый символ вводимого пароля на '*'
-            textBox2.PasswordChar = '*';
-        }
     }
 }

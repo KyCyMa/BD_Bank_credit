@@ -390,8 +390,6 @@ namespace АИС_банка_кредитов
 
             // Вставляем данные в базу данных
             InsertDogovorDataToDatabase(id, FIO, INN_client, seria_pasporta, number_pasporta, address, name_bank, INN_bank, summa, srok, proc, sposob, data_reg);
-
-            return true;
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -852,71 +850,65 @@ namespace АИС_банка_кредитов
         private void tabPage3_Click(object sender, EventArgs e)
         {
 
-        //Функция поиска кредита
-        private void button18_Click(object sender, EventArgs e)
-        {
-            string query;
-            if (string.IsNullOrEmpty(textBox61.Text))
-            {
-                // Если поле поиска пустое, загрузить все данные
-                query = "SELECT * FROM Кредит";
-            }
-            else
-            {
-                //Поиск по выбранному критерию
-                string selectedField = comboBox3.SelectedItem.ToString();
-                string searchText = textBox61.Text;
-                query = $"SELECT * FROM Кредит WHERE {selectedField} LIKE '%{searchText}%'";
-            }
-            adapter = new SQLiteDataAdapter(query, connection);
-            dt = new DataTable();
-            adapter.Fill(dt);
-            dataGridView3.DataSource = dt;
         }
 
-        //Функция поиска сотрудника
-        private void button19_Click(object sender, EventArgs e)
+        private void InitializeFormComponents()
         {
-            string query;
-            if (string.IsNullOrEmpty(textBox62.Text))
-            {
-                // Если поле поиска пустое, загрузить все данные
-                query = "SELECT * FROM Сотрудник";
-            }
-            else
-            {
-                //Поиск по выбранному критерию
-                string selectedField = comboBox4.SelectedItem.ToString();
-                string searchText = textBox62.Text;
-                query = $"SELECT * FROM Сотрудник WHERE {selectedField} LIKE '%{searchText}%'";
-            }
-            adapter = new SQLiteDataAdapter(query, connection);
-            dt = new DataTable();
-            adapter.Fill(dt);
-            dataGridView4.DataSource = dt;
+            // Создаем объект MenuStrip
+            MenuStrip menuStrip = new MenuStrip();
+
+            // Создаем элементы меню
+            ToolStripMenuItem refreshMenuItem = new ToolStripMenuItem("Обновить");
+            ToolStripMenuItem historyMenuItem = new ToolStripMenuItem("История");
+            ToolStripMenuItem exitMenuItem = new ToolStripMenuItem("Выход");
+
+            // Привязываем обработчики событий к пунктам меню
+            refreshMenuItem.Click += RefreshMenuItem_Click;
+            historyMenuItem.Click += HistoryMenuItem_Click;
+            exitMenuItem.Click += ExitMenuItem_Click;
+
+            // Добавляем элементы меню в MenuStrip
+            menuStrip.Items.Add(refreshMenuItem);
+            menuStrip.Items.Add(historyMenuItem);
+            menuStrip.Items.Add(exitMenuItem);
+
+            // Устанавливаем MenuStrip для формы
+            this.MainMenuStrip = menuStrip;
+            this.Controls.Add(menuStrip);
+
+            // Настройки формы
+            this.Text = "Form3";
+            this.Width = 800;
+            this.Height = 600;
         }
 
-        //Функция поиска
-        private void button20_Click(object sender, EventArgs e)
+        private void RefreshMenuItem_Click(object sender, EventArgs e)
         {
-            string query;
-            if (string.IsNullOrEmpty(textBox63.Text))
-            {
-                // Если поле поиска пустое, загрузить все данные
-                query = "SELECT * FROM Платеж";
-            }
-            else
-            {
-                //Поиск по выбранному критерию
-                string selectedField = comboBox5.SelectedItem.ToString();
-                string searchText = textBox63.Text;
-                query = $"SELECT * FROM Платеж WHERE {selectedField} LIKE '%{searchText}%'";
-            }
-            adapter = new SQLiteDataAdapter(query, connection);
-            dt = new DataTable();
-            adapter.Fill(dt);
-            dataGridView5.DataSource = dt;
+            // Логика для кнопки "Обновить"
+            LoadClientData();
+            LoadDogovorData();
+            LoadKreditData();
+            LoadPlatechData();
+            LoadPersonalData();
+            MessageBox.Show("Данные обновлены", "Обновление");
         }
+
+        private void HistoryMenuItem_Click(object sender, EventArgs e)
+        {
+            // Логика для кнопки "История"
+            MessageBox.Show("История действий", "История");
+        }
+
+        private void ExitMenuItem_Click(object sender, EventArgs e)
+        {
+            // Логика для кнопки "Выход"
+            var result = MessageBox.Show("Вы уверены, что хотите выйти?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                this.Close();
+            }
+        }
+
     }
 }
     

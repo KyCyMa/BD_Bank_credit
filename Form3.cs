@@ -36,6 +36,7 @@ namespace АИС_банка_кредитов
             LoadKreditData();
             LoadPlatechData();
             LoadPersonalData();
+            comboBox2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
         }
 
         private void ConnectToDatabase()
@@ -45,7 +46,7 @@ namespace АИС_банка_кредитов
             connection.Open();
         }
 
-        private void LoadClientData()
+        private void LoadClientData(string columnName = "Фамилия")
         {
             string dbPath = "C:\\Users\\KyCyMaMa\\Desktop\\Bank.db";
             string connectionString = $"Data Source={dbPath}";
@@ -63,6 +64,17 @@ namespace АИС_банка_кредитов
                         DataTable clientsTable = new DataTable();
                         adapter.Fill(clientsTable);
                         dataGridView1.DataSource = clientsTable;
+
+                        // Заполняем comboBox1 значениями из выбранного столбца
+                        comboBox1.Items.Clear();
+                        if (clientsTable.Columns.Contains(columnName))
+                        {
+                            foreach (DataRow row in clientsTable.Rows)
+                            {
+                                if (row[columnName] != DBNull.Value)
+                                    comboBox1.Items.Add(row[columnName].ToString());
+                            }
+                        }
                     }
                 }
             }
@@ -160,6 +172,34 @@ namespace АИС_банка_кредитов
             }
         }
 
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Получаем выбранное значение
+            string selectedColumn = comboBox2.SelectedItem.ToString();
+
+            // Загружаем данные из выбранного столбца
+            LoadClientData(selectedColumn);
+        }
+
+        private void Form3_Load(object sender, EventArgs e)
+        {
+            // Добавляем типы данных
+            comboBox2.Items.Add("ID");
+            comboBox2.Items.Add("Фамилия");
+            comboBox2.Items.Add("Имя");
+            comboBox2.Items.Add("Отчество");
+            comboBox2.Items.Add("ИНН");
+            comboBox2.Items.Add("Дата_рождения");
+            comboBox2.Items.Add("Серия_паспорта");
+            comboBox2.Items.Add("Номер_паспорта");
+            comboBox2.Items.Add("Гражданство");
+            comboBox2.Items.Add("Адрес");
+            comboBox2.Items.Add("Номер_телефона");
+            comboBox2.Items.Add("Email");
+            comboBox2.Items.Add("Дата_регистрации");
+            comboBox2.SelectedIndex = 0; // Устанавливаем начальное значение
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             // Получаем значения из полей ввода
@@ -182,12 +222,6 @@ namespace АИС_банка_кредитов
             // Валидация данных
             try
             {
-                if (!ValidateClientData(INN, data_roda, seria_pasporta, number_pasport, data_reg))
-                {
-                    MessageBox.Show("Ошибка валидации данных. Проверьте введенные значения.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
                 // Вставляем данные в базу данных
                 InsertKlientDataToDatabase(id, surname, name, lastName, INN, data_roda, seria_pasporta, number_pasport, gr, address, number_phone, email, data_reg);
                 LoadClientData();
@@ -197,44 +231,7 @@ namespace АИС_банка_кредитов
                 MessageBox.Show($"Ошибка при добавлении данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        private bool ValidateClientData(string INN, string data_roda, string seria_pasporta, string number_pasport, string data_reg)
-        {
-            // Проверка длины ИНН
-            if (INN.Length > 8)
-            {
-                MessageBox.Show("Введен неправильный ИНН. Формат ввода - 8 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
 
-            // Проверка формата даты
-            if (!DateTime.TryParseExact(data_roda, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out _))
-            {
-                MessageBox.Show("Введена неправильная дата рождения. Формат ввода дд.мм.гггг.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }    
-
-            if (!DateTime.TryParseExact(data_reg, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out _))
-            {
-                MessageBox.Show("Введена неправильная дата регистрации. Формат ввода дд.мм.ггггг.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }    
-
-            // Проверка серии паспорта
-            if (seria_pasporta.Length > 4 || !seria_pasporta.All(char.IsDigit))
-            {
-                MessageBox.Show("Введена неправильная серия паспорта. Формат ввода - 4 цифры.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            // Проверка номера паспорта
-            if (number_pasport.Length > 6 || !number_pasport.All(char.IsDigit))
-            {
-                MessageBox.Show("Введен неправильный носер паспорта. Формат ввода - 6 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            return true;
-        }
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -370,6 +367,11 @@ namespace АИС_банка_кредитов
                 command.ExecuteNonQuery();
             }
         }
+
+     
+
+        // Применение обработчика к нужным TextBox
+
 
         private void button5_Click(object sender, EventArgs e)
         {
@@ -909,6 +911,10 @@ namespace АИС_банка_кредитов
             }
         }
 
+        private void button16_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
     

@@ -29,6 +29,8 @@ namespace АИС_банка_кредитов
             textBox5.Validating += textBox5_Validating;
             textBox6.Validating += textBox6_Validating;
             textBox9.Validating += textBox9_Validating;
+            dataGridView1.SelectionChanged += dataGridView1_SelectionChanged;
+            dataGridView1.ReadOnly = true;
         }
 
         private void Form2_Load(object sender, EventArgs e)
@@ -37,8 +39,8 @@ namespace АИС_банка_кредитов
             comboBox2.Items.AddRange(new object[] { "12 месяцев", "24 месяца", "36 месяцев", "48 месяцев", "60 месяцев" });
             comboBox3.Items.AddRange(new object[] { "5%", "10%", "15%", "20%", "25%" });
             comboBox4.Items.AddRange(new object[] { "Потребительские нужды", "Жилищные цели", "Автокредит", "Образование", "Личные цели", "Бизнес" });
-
             LoadDogovorData();
+            LoadComboBox5FromSotrudnik();
         }
 
         private void LoadDogovorData()
@@ -58,6 +60,8 @@ namespace АИС_банка_кредитов
                         dataGridView1.Columns["ID"].Visible = false;
                         dataGridView1.Columns["ID_Клиента"].Visible = false;
                         dataGridView1.Columns["ID_Кредита"].Visible = false;
+                        dataGridView1.Columns["ID_Сотрудника"].Visible = false;
+
                     }
                 }
             }
@@ -186,26 +190,26 @@ namespace АИС_банка_кредитов
             }
         }
 
-        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
         {
-            if (e.RowIndex >= 0)
+            if (dataGridView1.SelectedRows.Count > 0)
             {
-                DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+                DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
 
-                textBox1.Text = row.Cells["Фамилия"].Value.ToString();
-                textBox2.Text = row.Cells["Имя"].Value.ToString();
-                textBox3.Text = row.Cells["Отчество"].Value.ToString();
-                textBox4.Text = row.Cells["Дата_рождения"].Value.ToString();
-                textBox5.Text = row.Cells["Серия_паспорта"].Value.ToString();
-                textBox6.Text = row.Cells["Номер_паспорта"].Value.ToString();
-                textBox7.Text = row.Cells["ИНН"].Value.ToString();
-                textBox8.Text = row.Cells["Адрес_проживания"].Value.ToString();
-                textBox9.Text = row.Cells["Номер_телефона"].Value.ToString();
-                textBox10.Text = row.Cells["Сумма_кредита"].Value.ToString();
-                comboBox1.SelectedItem = row.Cells["Банк"].Value.ToString();
-                comboBox2.SelectedItem = row.Cells["Срок_кредита"].Value.ToString();
-                comboBox3.SelectedItem = row.Cells["Процентная_ставка"].Value.ToString();
-                comboBox4.SelectedItem = row.Cells["Цель_кредита"].Value.ToString();
+                textBox1.Text = selectedRow.Cells["Фамилия"].Value?.ToString() ?? "";
+                textBox2.Text = selectedRow.Cells["Имя"].Value?.ToString() ?? "";
+                textBox3.Text = selectedRow.Cells["Отчество"].Value?.ToString() ?? "";
+                textBox4.Text = selectedRow.Cells["Дата_рождения"].Value?.ToString() ?? "";
+                textBox5.Text = selectedRow.Cells["Серия_паспорта"].Value?.ToString() ?? "";
+                textBox6.Text = selectedRow.Cells["Номер_паспорта"].Value?.ToString() ?? "";
+                textBox7.Text = selectedRow.Cells["ИНН"].Value?.ToString() ?? "";
+                textBox8.Text = selectedRow.Cells["Адрес_проживания"].Value?.ToString() ?? "";
+                textBox9.Text = selectedRow.Cells["Номер_телефона"].Value?.ToString() ?? "";
+                textBox10.Text = selectedRow.Cells["Сумма_кредита"].Value?.ToString() ?? "";
+                comboBox1.SelectedItem = selectedRow.Cells["Банк"].Value?.ToString() ?? "";
+                comboBox2.SelectedItem = selectedRow.Cells["Срок_кредита"].Value?.ToString() ?? "";
+                comboBox3.SelectedItem = selectedRow.Cells["Процентная_ставка"].Value?.ToString() ?? "";
+                comboBox4.SelectedItem = selectedRow.Cells["Цель_кредита"].Value?.ToString() ?? "";
             }
         }
 
@@ -294,7 +298,46 @@ namespace АИС_банка_кредитов
 
         private void button4_Click(object sender, EventArgs e)
         {
+            // Вывод сообщения с подтверждением
+            DialogResult result = MessageBox.Show("Вы хотите совершить платеж?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
+            if (result == DialogResult.Yes)
+            {
+                // Создание и отображение Form5
+                Form4 form4 = new Form4();
+                form4.Show();
+                
+            }
         }
+
+        private void LoadComboBox5FromSotrudnik()
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+
+                    // Запрос для получения данных из столбца "ФИО" таблицы "Сотрудник"
+                    string query = "SELECT DISTINCT ФИО FROM Сотрудник";
+
+                    using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        comboBox5.Items.Clear(); // Очистить ComboBox перед загрузкой данных
+                        while (reader.Read())
+                        {
+                            // Добавляем значения столбца "ФИО" в ComboBox
+                            comboBox5.Items.Add(reader.GetString(0));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при загрузке данных в ComboBox5: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
     }
 }

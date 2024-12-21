@@ -30,6 +30,7 @@ namespace АИС_банка_кредитов
 
         public Form3()
         {
+            connectionString = $"Data Source={dbPath}";
             InitializeFormComponents();
             InitializeComponent();
             ConnectToDatabase();
@@ -51,6 +52,15 @@ namespace АИС_банка_кредитов
             comboBox10.Items.AddRange(new object[] { "5%", "10%", "15%", "20%", "25%" });
             comboBox13.Items.AddRange(new object[] { "5%", "10%", "15%", "20%", "25%" });
             comboBox11.Items.AddRange(new object[] { "Потребительские нужды", "Жилищные цели", "Автокредит", "Образование", "Личные цели", "Бизнес" });
+            textBox1.Validating += textBox1_Validating;
+            textBox2.Validating += textBox2_Validating;
+            textBox3.Validating += textBox3_Validating;
+            textBox4.Validating += textBox4_Validating;
+            textBox5.Validating += textBox5_Validating;
+            textBox6.Validating += textBox6_Validating;
+            textBox7.Validating += textBox7_Validating;
+            textBox8.Validating += textBox8_Validating;
+            textBox9.Validating += textBox9_Validating;
 
 
         }
@@ -205,6 +215,7 @@ namespace АИС_банка_кредитов
             {
                 MessageBox.Show($"Ошибка при добавлении данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -365,13 +376,6 @@ namespace АИС_банка_кредитов
             string annualRate = comboBox10.SelectedItem?.ToString() ?? "Не выбрано";
             string creditPurpose = comboBox11.SelectedItem?.ToString() ?? "Не выбрано";
 
-            if (string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(firstName) ||
-                string.IsNullOrWhiteSpace(innClient) || string.IsNullOrWhiteSpace(creditAmount))
-            {
-                MessageBox.Show("Пожалуйста, заполните обязательные поля (Фамилия, Имя, ИНН, Сумма кредита).", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
                 connection.Open();
@@ -398,6 +402,10 @@ namespace АИС_банка_кредитов
                     command.ExecuteNonQuery();
                 }
             }
+            LoadDogovorData();
+            ClearInputs();
+            MessageBox.Show("Данные успешно добавлены", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -613,6 +621,7 @@ namespace АИС_банка_кредитов
 
         private void UpdateKreditDataInDatabase(string id, string cell_credit, string srok, string status, string data_vidachi, string valuta, string suma, string data_platezha, string proc)
         {
+            string currentDate = GetCurrentDate();
             using (SQLiteCommand command = new SQLiteCommand(connection))
             {
                 command.CommandText = "UPDATE Кредит SET Цель_кредита = @cell_credit, Срок_кредита = @srok, Статус_кредита = @status, Дата_выдачи_кредита = @data_vidachi, Валюта_кредита = @valuta, Сумма_кредита = @suma, Дата_платежа = @data_platezha, Процентная_ставка = @proc WHERE ID = @id";
@@ -623,7 +632,7 @@ namespace АИС_банка_кредитов
                 command.Parameters.AddWithValue("@data_vidachi", data_vidachi);
                 command.Parameters.AddWithValue("@valuta", valuta);
                 command.Parameters.AddWithValue("@suma", suma);
-                command.Parameters.AddWithValue("@data_platezha", data_platezha);
+                command.Parameters.AddWithValue("@data_platezha", currentDate);
                 command.Parameters.AddWithValue("proc", proc);
                 command.ExecuteNonQuery();
             }
@@ -1138,6 +1147,233 @@ namespace АИС_банка_кредитов
             comboBox9.SelectedIndex = -1;
             comboBox10.SelectedIndex = -1;
             comboBox11.SelectedIndex = -1;
+        }
+
+        // Обработчик для фамилии
+        private void textBox1_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!IsOnlyLetters(textBox1.Text))
+            {
+                MessageBox.Show("Фамилия должна содержать только буквы.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+            }
+        }
+
+        // Обработчик для имени
+        private void textBox2_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!IsOnlyLetters(textBox2.Text))
+            {
+                MessageBox.Show("Имя должно содержать только буквы.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+            }
+        }
+
+        // Обработчик для отчества
+        private void textBox3_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!IsOnlyLetters(textBox3.Text))
+            {
+                MessageBox.Show("Отчество должно содержать только буквы.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+            }
+        }
+
+        // Обработчик для даты рождения
+        private void textBox4_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!IsValidDate(textBox4.Text))
+            {
+                MessageBox.Show("Дата рождения должна быть в формате ДД.ММ.ГГГГ.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+            }
+        }
+
+        // Обработчик для серии паспорта
+        private void textBox5_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!IsOnlyDigits(textBox5.Text, 4))
+            {
+                MessageBox.Show("Серия паспорта должна содержать ровно 4 цифры.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+            }
+        }
+
+        // Обработчик для номера паспорта
+        private void textBox6_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!IsOnlyDigits(textBox6.Text, 6))
+            {
+                MessageBox.Show("Номер паспорта должен содержать ровно 6 цифр.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+            }
+        }
+
+        // Обработчик для ИНН
+        private void textBox7_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!IsOnlyDigits(textBox7.Text, 8))
+            {
+                MessageBox.Show("ИНН должен содержать ровно 8 цифр.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+            }
+        }
+
+        // Обработчик для адреса
+        private void textBox8_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!IsOnlyLetters(textBox8.Text))
+            {
+                MessageBox.Show("Адрес должен содержать только буквы.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+            }
+        }
+
+        // Обработчик для номера телефона
+        private void textBox9_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!IsValidPhoneNumber(textBox9.Text))
+            {
+                MessageBox.Show("Номер телефона должен содержать 11 цифр и начинаться с +7 или 8.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                e.Cancel = true;
+            }
+        }
+
+        // Методы проверки
+        private bool IsOnlyLetters(string input)
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(input, @"^[а-яА-ЯёЁa-zA-Z\s]+$");
+        }
+
+        private bool IsOnlyDigits(string input, int length)//валидация длины
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(input, $@"^\d{{{length}}}$");
+        }
+
+        private bool IsValidPhoneNumber(string input)//валидация номера телефона
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(input, @"^(?:\+7|8)\d{10}$");
+        }
+
+        private bool IsValidDate(string input)//валидация даты
+        {
+            return DateTime.TryParseExact(input, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out _);
+        }
+
+        private void button17_Click(object sender, EventArgs e)//Сброс поиска клиент
+        {
+            // Очищаем поле поиска и сбрасываем выбранный критерий
+            textBox30.Clear();
+            comboBox6.SelectedIndex = -1; // Сбрасываем выбор в ComboBox
+
+            try
+            {
+                // Формируем запрос для получения всех данных из таблицы Клиент
+                string query = "SELECT * FROM Клиент";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(command))
+                    {
+                        DataTable allData = new DataTable();
+                        adapter.Fill(allData);
+
+                        // Обновляем DataGridView с полными данными
+                        dataGridView1.DataSource = allData;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сбросе фильтра: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button18_Click(object sender, EventArgs e)
+        {
+            // Очищаем поле поиска и сбрасываем выбранный критерий
+            textBox31.Clear();
+            comboBox7.SelectedIndex = -1; // Сбрасываем выбор в ComboBox
+
+            try
+            {
+                // Формируем запрос для получения всех данных из таблицы Клиент
+                string query = "SELECT * FROM Договор";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(command))
+                    {
+                        DataTable allData = new DataTable();
+                        adapter.Fill(allData);
+
+                        // Обновляем DataGridView с полными данными
+                        dataGridView2.DataSource = allData;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сбросе фильтра: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+            // Очищаем поле поиска и сбрасываем выбранный критерий
+            textBox32.Clear();
+            comboBox8.SelectedIndex = -1; // Сбрасываем выбор в ComboBox
+
+            try
+            {
+                // Формируем запрос для получения всех данных из таблицы Клиент
+                string query = "SELECT * FROM Кредит";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(command))
+                    {
+                        DataTable allData = new DataTable();
+                        adapter.Fill(allData);
+
+                        // Обновляем DataGridView с полными данными
+                        dataGridView3.DataSource = allData;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сбросе фильтра: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button20_Click(object sender, EventArgs e)
+        {
+            // Очищаем поле поиска и сбрасываем выбранный критерий
+            textBox33.Clear();
+            comboBox12.SelectedIndex = -1; // Сбрасываем выбор в ComboBox
+
+            try
+            {
+                // Формируем запрос для получения всех данных из таблицы Клиент
+                string query = "SELECT * FROM Платеж";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(command))
+                    {
+                        DataTable allData = new DataTable();
+                        adapter.Fill(allData);
+
+                        // Обновляем DataGridView с полными данными
+                        dataGridView5.DataSource = allData;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сбросе фильтра: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

@@ -1,24 +1,28 @@
-CREATE TRIGGER InsertIntoКредитИклиент
+CREATE TRIGGER Автодобавление_Кредит_Иклиент
          AFTER INSERT
             ON Договор
       FOR EACH ROW
 BEGIN
     INSERT INTO Кредит (
-                           ID,
                            Цель_кредита,
                            Срок_кредита,
                            Дата_выдачи_кредита,
                            Сумма_кредита,
                            Процентная_ставка
                        )
-                       VALUES (
-                           NEW.ID,
-                           NEW.Цель_кредита,
-                           NEW.Срок_кредита,
-                           DATE('now'),
-                           NEW.Сумма_кредита,
-                           NEW.Процентная_ставка
-                       );
+                       SELECT NEW.Цель_кредита,
+                              NEW.Срок_кредита,
+                              DATE('now'),
+                              NEW.Сумма_кредита,
+                              NEW.Процентная_ставка
+                        WHERE NOT EXISTS (
+                                      SELECT 1
+                                        FROM Кредит
+                                       WHERE ID = NEW.ID_Кредита
+                                  );
+    UPDATE Договор
+       SET ID_Кредита = COALESCE(NEW.ID_Кредита, LAST_INSERT_ROWID() ) 
+     WHERE ID = NEW.ID;
     INSERT INTO Клиент (
                            ID,
                            Фамилия,
@@ -32,7 +36,7 @@ BEGIN
                            Номер_телефона,
                            Дата_регистрации
                        )
-                       SELECT NEW.ID,
+                       SELECT NEW.ID_Клиента,
                               NEW.Фамилия,
                               NEW.Имя,
                               NEW.Отчество,
@@ -46,6 +50,6 @@ BEGIN
                         WHERE NOT EXISTS (
                                       SELECT 1
                                         FROM Клиент
-                                       WHERE ID = NEW.ID
+                                       WHERE ID = NEW.ID_Клиента
                                   );
 END;

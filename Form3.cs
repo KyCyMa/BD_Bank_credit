@@ -508,11 +508,10 @@ namespace АИС_банка_кредитов
             string data_vidachi = textBox21.Text;
             string valuta = comboBox5.SelectedItem?.ToString() ?? "Не выбрано";
             string suma = textBox22.Text;
-            string data_platezha = textBox23.Text;
             string proc = comboBox13.Text;
 
             // Вставляем данные в базу данных
-            InsertKreditDataToDatabase(cell_credit, srok, status, data_vidachi, valuta, suma, data_platezha, proc);
+            InsertKreditDataToDatabase(cell_credit, srok, status, data_vidachi, valuta, suma, proc);
 
             // Обновляем DataGridView
             LoadKreditData();
@@ -536,7 +535,6 @@ namespace АИС_банка_кредитов
             string data_vidachi = textBox21.Text;
             string valuta = comboBox5.SelectedItem?.ToString() ?? "Не выбрано";
             string suma = textBox22.Text;
-            string data_platezha = textBox23.Text;
             string proc = comboBox13.Text;
 
             // Получаем ID выбранного договора из DataGridView2
@@ -547,7 +545,7 @@ namespace АИС_банка_кредитов
             try
             {
                 // Обновляем данные договора
-                UpdateKreditDataInDatabase(kreditId, cell_credit, srok, status, data_vidachi, valuta, suma, data_platezha, proc);
+                UpdateKreditDataInDatabase(kreditId, cell_credit, srok, status, data_vidachi, valuta, suma, proc);
                 LoadKreditData(); // Перезагружаем данные
                 MessageBox.Show("Данные договора обновлены.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -572,8 +570,7 @@ namespace АИС_банка_кредитов
                 textBox21.Text = selectedRow.Cells[5].Value?.ToString() ?? string.Empty;
                 comboBox5.Text = selectedRow.Cells[6].Value?.ToString() ?? string.Empty;
                 textBox22.Text = selectedRow.Cells[7].Value?.ToString() ?? string.Empty;
-                textBox23.Text = selectedRow.Cells[8].Value?.ToString() ?? string.Empty;
-                comboBox13.Text = selectedRow.Cells[9].Value.ToString() ?? string.Empty;        
+                comboBox13.Text = selectedRow.Cells[8].Value.ToString() ?? string.Empty;        
             }
         }
 
@@ -600,7 +597,7 @@ namespace АИС_банка_кредитов
             }
         }
 
-        private void InsertKreditDataToDatabase(string cell_credit, string srok, string status, string data_vidachi, string valuta, string suma, string data_platezha, string proc)
+        private void InsertKreditDataToDatabase(string cell_credit, string srok, string status, string data_vidachi, string valuta, string suma, string proc)
         {
             string currentDate = GetCurrentDate(); // Получение текущей даты
             using (SQLiteCommand command = new SQLiteCommand(connection))
@@ -613,13 +610,12 @@ namespace АИС_банка_кредитов
                 command.Parameters.AddWithValue("@data_vidachi", currentDate);
                 command.Parameters.AddWithValue("@valuta", valuta);
                 command.Parameters.AddWithValue("@suma", suma);
-                command.Parameters.AddWithValue("@data_platezha", currentDate);
                 command.Parameters.AddWithValue("proc", proc);
                 command.ExecuteNonQuery();
             }
         }
 
-        private void UpdateKreditDataInDatabase(string id, string cell_credit, string srok, string status, string data_vidachi, string valuta, string suma, string data_platezha, string proc)
+        private void UpdateKreditDataInDatabase(string id, string cell_credit, string srok, string status, string data_vidachi, string valuta, string suma, string proc)
         {
             string currentDate = GetCurrentDate();
             using (SQLiteCommand command = new SQLiteCommand(connection))
@@ -632,7 +628,6 @@ namespace АИС_банка_кредитов
                 command.Parameters.AddWithValue("@data_vidachi", data_vidachi);
                 command.Parameters.AddWithValue("@valuta", valuta);
                 command.Parameters.AddWithValue("@suma", suma);
-                command.Parameters.AddWithValue("@data_platezha", currentDate);
                 command.Parameters.AddWithValue("proc", proc);
                 command.ExecuteNonQuery();
             }
@@ -882,11 +877,12 @@ namespace АИС_банка_кредитов
 
         private void ExitMenuItem_Click(object sender, EventArgs e)
         {
-            // Логика для кнопки "Выход"
             var result = MessageBox.Show("Вы уверены, что хотите выйти?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {
-                this.Close();
+                Form1 form1 = new Form1();  // Создаем новый экземпляр Form1
+                form1.Show();  // Открываем Form1
+                this.Hide();  // Скрываем текущую форму
             }
         }
 
@@ -1132,7 +1128,6 @@ namespace АИС_банка_кредитов
             textBox20.Clear();
             textBox21.Clear();
             textBox22.Clear();
-            textBox23.Clear();
             textBox25.Clear();
             textBox26.Clear();
             textBox27.Clear();

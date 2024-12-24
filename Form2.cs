@@ -35,12 +35,18 @@ namespace АИС_банка_кредитов
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            comboBox1.Items.AddRange(new object[] { "Сбербанк", "Альфа-Банк", "ВТБ", "Тинькофф", "Газпромбанк" });
+            //comboBox1.Items.AddRange(new object[] { "Сбербанк", "Альфа-Банк", "ВТБ", "Тинькофф", "Газпромбанк" });
             comboBox2.Items.AddRange(new object[] { "12 месяцев", "24 месяца", "36 месяцев", "48 месяцев", "60 месяцев" });
             comboBox3.Items.AddRange(new object[] { "5%", "10%", "15%", "20%", "25%" });
             comboBox4.Items.AddRange(new object[] { "Потребительские нужды", "Жилищные цели", "Автокредит", "Образование", "Личные цели", "Бизнес" });
             LoadDogovorData();
             LoadComboBox5FromSotrudnik();
+            LoadComboBox1FromBank();
+        }
+
+        private string GetCurrentDate()
+        {
+            return DateTime.Now.ToString("dd-MM-yyyy"); // Текущая дата
         }
 
         private void LoadDogovorData()
@@ -94,34 +100,48 @@ namespace АИС_банка_кредитов
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
                 connection.Open();
-                string query = "INSERT INTO Договор (Фамилия, Имя, Отчество, Дата_рождения, Серия_паспорта, Номер_паспорта, ИНН, Адрес_проживания, Номер_телефона, Банк, Сумма_кредита, Срок_кредита, Процентная_ставка, Цель_кредита) " +
-                               "VALUES (@LastName, @FirstName, @MiddleName, @BirthDate, @PassportSeries, @PassportNumber, @INN, @Address, @PhoneNumber, @BankName, @CreditAmount, @CreditTerm, @AnnualRate, @CreditPurpose)";
-
-                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                string curretdate = GetCurrentDate();   
+                using (SQLiteTransaction transaction = connection.BeginTransaction())
                 {
-                    command.Parameters.AddWithValue("@LastName", lastName);
-                    command.Parameters.AddWithValue("@FirstName", firstName);
-                    command.Parameters.AddWithValue("@MiddleName", middleName);
-                    command.Parameters.AddWithValue("@BirthDate", birthDate);
-                    command.Parameters.AddWithValue("@PassportSeries", passportSeries);
-                    command.Parameters.AddWithValue("@PassportNumber", passportNumber);
-                    command.Parameters.AddWithValue("@INN", innClient);
-                    command.Parameters.AddWithValue("@Address", address);
-                    command.Parameters.AddWithValue("@PhoneNumber", phoneNumber);
-                    command.Parameters.AddWithValue("@BankName", bankName);
-                    command.Parameters.AddWithValue("@CreditAmount", creditAmount);
-                    command.Parameters.AddWithValue("@CreditTerm", creditTerm);
-                    command.Parameters.AddWithValue("@AnnualRate", annualRate);
-                    command.Parameters.AddWithValue("@CreditPurpose", creditPurpose);
+                    try
+                    {
+                        // Вставка данных в таблицу "Договор"
+                        string contractQuery = "INSERT INTO Договор (Фамилия, Имя, Отчество, Дата_рождения, Серия_паспорта, Номер_паспорта, ИНН, Адрес_проживания, Номер_телефона, Банк, Сумма_кредита, Срок_кредита, Процентная_ставка, Цель_кредита) " +
+                                               "VALUES (@LastName, @FirstName, @MiddleName, @BirthDate, @PassportSeries, @PassportNumber, @INN, @Address, @PhoneNumber, @BankName, @CreditAmount, @CreditTerm, @AnnualRate, @CreditPurpose)";
+                        using (SQLiteCommand contractCommand = new SQLiteCommand(contractQuery, connection, transaction))
+                        {
+                            
+                            contractCommand.Parameters.AddWithValue("@LastName", lastName);
+                            contractCommand.Parameters.AddWithValue("@FirstName", firstName);
+                            contractCommand.Parameters.AddWithValue("@MiddleName", middleName);
+                            contractCommand.Parameters.AddWithValue("@BirthDate", birthDate);
+                            contractCommand.Parameters.AddWithValue("@PassportSeries", passportSeries);
+                            contractCommand.Parameters.AddWithValue("@PassportNumber", passportNumber);
+                            contractCommand.Parameters.AddWithValue("@INN", innClient);
+                            contractCommand.Parameters.AddWithValue("@Address", address);
+                            contractCommand.Parameters.AddWithValue("@PhoneNumber", phoneNumber);
+                            contractCommand.Parameters.AddWithValue("@BankName", bankName);
+                            contractCommand.Parameters.AddWithValue("@CreditAmount", creditAmount);
+                            contractCommand.Parameters.AddWithValue("@CreditTerm", creditTerm);
+                            contractCommand.Parameters.AddWithValue("@AnnualRate", annualRate);
+                            contractCommand.Parameters.AddWithValue("@CreditPurpose", creditPurpose);
+                            contractCommand.ExecuteNonQuery();
+                        }
 
-                    command.ExecuteNonQuery();
+                        transaction.Commit();
+                        LoadDogovorData();
+                        ClearInputs();
+                        MessageBox.Show("Вы успешно оформили кредит", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        MessageBox.Show($"Ошибка при вставке данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
-
-            LoadDogovorData();
-            ClearInputs();
-            MessageBox.Show("Вы успешно оформили кредит", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -338,6 +358,36 @@ namespace АИС_банка_кредитов
                 }
             }
         }
+
+        private void LoadComboBox1FromBank()
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+
+                    // Запрос для получения данных из столбца "ФИО" таблицы "Сотрудник"
+                    string query = "SELECT DISTINCT Название FROM Банк";
+
+                    using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        comboBox1.Items.Clear(); // Очистить ComboBox перед загрузкой данных
+                        while (reader.Read())
+                        {
+                            // Добавляем значения столбца "ФИО" в ComboBox
+                            comboBox1.Items.Add(reader.GetString(0));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при загрузке данных в ComboBox1: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
 
     }
 }

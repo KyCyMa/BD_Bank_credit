@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.button20 = new System.Windows.Forms.Button();
             this.label42 = new System.Windows.Forms.Label();
             this.button16 = new System.Windows.Forms.Button();
             this.textBox33 = new System.Windows.Forms.TextBox();
@@ -49,6 +50,7 @@
             this.button13 = new System.Windows.Forms.Button();
             this.dataGridView5 = new System.Windows.Forms.DataGridView();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.button19 = new System.Windows.Forms.Button();
             this.label30 = new System.Windows.Forms.Label();
             this.comboBox13 = new System.Windows.Forms.ComboBox();
             this.label41 = new System.Windows.Forms.Label();
@@ -56,14 +58,12 @@
             this.textBox32 = new System.Windows.Forms.TextBox();
             this.comboBox8 = new System.Windows.Forms.ComboBox();
             this.comboBox5 = new System.Windows.Forms.ComboBox();
-            this.label32 = new System.Windows.Forms.Label();
             this.label31 = new System.Windows.Forms.Label();
             this.label29 = new System.Windows.Forms.Label();
             this.label28 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
             this.label26 = new System.Windows.Forms.Label();
             this.label25 = new System.Windows.Forms.Label();
-            this.textBox23 = new System.Windows.Forms.TextBox();
             this.textBox22 = new System.Windows.Forms.TextBox();
             this.comboBox4 = new System.Windows.Forms.ComboBox();
             this.textBox21 = new System.Windows.Forms.TextBox();
@@ -74,6 +74,7 @@
             this.button3 = new System.Windows.Forms.Button();
             this.dataGridView3 = new System.Windows.Forms.DataGridView();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.button18 = new System.Windows.Forms.Button();
             this.label40 = new System.Windows.Forms.Label();
             this.button11 = new System.Windows.Forms.Button();
             this.textBox31 = new System.Windows.Forms.TextBox();
@@ -111,6 +112,7 @@
             this.button8 = new System.Windows.Forms.Button();
             this.dataGridView2 = new System.Windows.Forms.DataGridView();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.button17 = new System.Windows.Forms.Button();
             this.label39 = new System.Windows.Forms.Label();
             this.button10 = new System.Windows.Forms.Button();
             this.textBox30 = new System.Windows.Forms.TextBox();
@@ -140,10 +142,6 @@
             this.button4 = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.button17 = new System.Windows.Forms.Button();
-            this.button18 = new System.Windows.Forms.Button();
-            this.button19 = new System.Windows.Forms.Button();
-            this.button20 = new System.Windows.Forms.Button();
             this.tabPage5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView5)).BeginInit();
             this.tabPage3.SuspendLayout();
@@ -185,6 +183,16 @@
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Платеж";
             this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // button20
+            // 
+            this.button20.Location = new System.Drawing.Point(529, 435);
+            this.button20.Name = "button20";
+            this.button20.Size = new System.Drawing.Size(121, 23);
+            this.button20.TabIndex = 115;
+            this.button20.Text = "Сброс";
+            this.button20.UseVisualStyleBackColor = true;
+            this.button20.Click += new System.EventHandler(this.button20_Click);
             // 
             // label42
             // 
@@ -361,14 +369,12 @@
             this.tabPage3.Controls.Add(this.textBox32);
             this.tabPage3.Controls.Add(this.comboBox8);
             this.tabPage3.Controls.Add(this.comboBox5);
-            this.tabPage3.Controls.Add(this.label32);
             this.tabPage3.Controls.Add(this.label31);
             this.tabPage3.Controls.Add(this.label29);
             this.tabPage3.Controls.Add(this.label28);
             this.tabPage3.Controls.Add(this.label27);
             this.tabPage3.Controls.Add(this.label26);
             this.tabPage3.Controls.Add(this.label25);
-            this.tabPage3.Controls.Add(this.textBox23);
             this.tabPage3.Controls.Add(this.textBox22);
             this.tabPage3.Controls.Add(this.comboBox4);
             this.tabPage3.Controls.Add(this.textBox21);
@@ -387,10 +393,20 @@
             this.tabPage3.Text = "Кредит";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            // button19
+            // 
+            this.button19.Location = new System.Drawing.Point(598, 503);
+            this.button19.Name = "button19";
+            this.button19.Size = new System.Drawing.Size(121, 23);
+            this.button19.TabIndex = 117;
+            this.button19.Text = "Сброс";
+            this.button19.UseVisualStyleBackColor = true;
+            this.button19.Click += new System.EventHandler(this.button19_Click);
+            // 
             // label30
             // 
             this.label30.AutoSize = true;
-            this.label30.Location = new System.Drawing.Point(158, 489);
+            this.label30.Location = new System.Drawing.Point(152, 441);
             this.label30.Name = "label30";
             this.label30.Size = new System.Drawing.Size(135, 16);
             this.label30.TabIndex = 116;
@@ -399,7 +415,7 @@
             // comboBox13
             // 
             this.comboBox13.FormattingEnabled = true;
-            this.comboBox13.Location = new System.Drawing.Point(155, 508);
+            this.comboBox13.Location = new System.Drawing.Point(155, 460);
             this.comboBox13.Name = "comboBox13";
             this.comboBox13.Size = new System.Drawing.Size(121, 24);
             this.comboBox13.TabIndex = 115;
@@ -445,15 +461,6 @@
             this.comboBox5.Name = "comboBox5";
             this.comboBox5.Size = new System.Drawing.Size(121, 24);
             this.comboBox5.TabIndex = 65;
-            // 
-            // label32
-            // 
-            this.label32.AutoSize = true;
-            this.label32.Location = new System.Drawing.Point(152, 441);
-            this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(178, 16);
-            this.label32.TabIndex = 63;
-            this.label32.Text = "Дата последнего платежа";
             // 
             // label31
             // 
@@ -509,13 +516,6 @@
             this.label25.TabIndex = 56;
             this.label25.Text = "Цель кредита";
             // 
-            // textBox23
-            // 
-            this.textBox23.Location = new System.Drawing.Point(155, 460);
-            this.textBox23.Name = "textBox23";
-            this.textBox23.Size = new System.Drawing.Size(100, 22);
-            this.textBox23.TabIndex = 55;
-            // 
             // textBox22
             // 
             this.textBox22.Location = new System.Drawing.Point(155, 413);
@@ -535,7 +535,7 @@
             // 
             this.textBox21.Location = new System.Drawing.Point(11, 511);
             this.textBox21.Name = "textBox21";
-            this.textBox21.Size = new System.Drawing.Size(100, 22);
+            this.textBox21.Size = new System.Drawing.Size(121, 22);
             this.textBox21.TabIndex = 52;
             // 
             // comboBox3
@@ -647,6 +647,16 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Договор";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // button18
+            // 
+            this.button18.Location = new System.Drawing.Point(725, 500);
+            this.button18.Name = "button18";
+            this.button18.Size = new System.Drawing.Size(121, 23);
+            this.button18.TabIndex = 111;
+            this.button18.Text = "Сброс";
+            this.button18.UseVisualStyleBackColor = true;
+            this.button18.Click += new System.EventHandler(this.button18_Click);
             // 
             // label40
             // 
@@ -1000,6 +1010,16 @@
             this.tabPage1.Text = "Клиенты";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // button17
+            // 
+            this.button17.Location = new System.Drawing.Point(663, 386);
+            this.button17.Name = "button17";
+            this.button17.Size = new System.Drawing.Size(121, 23);
+            this.button17.TabIndex = 29;
+            this.button17.Text = "Сброс";
+            this.button17.UseVisualStyleBackColor = true;
+            this.button17.Click += new System.EventHandler(this.button17_Click);
+            // 
             // label39
             // 
             this.label39.AutoSize = true;
@@ -1255,46 +1275,6 @@
             this.tabControl1.Size = new System.Drawing.Size(1051, 628);
             this.tabControl1.TabIndex = 0;
             // 
-            // button17
-            // 
-            this.button17.Location = new System.Drawing.Point(663, 386);
-            this.button17.Name = "button17";
-            this.button17.Size = new System.Drawing.Size(121, 23);
-            this.button17.TabIndex = 29;
-            this.button17.Text = "Сброс";
-            this.button17.UseVisualStyleBackColor = true;
-            this.button17.Click += new System.EventHandler(this.button17_Click);
-            // 
-            // button18
-            // 
-            this.button18.Location = new System.Drawing.Point(725, 500);
-            this.button18.Name = "button18";
-            this.button18.Size = new System.Drawing.Size(121, 23);
-            this.button18.TabIndex = 111;
-            this.button18.Text = "Сброс";
-            this.button18.UseVisualStyleBackColor = true;
-            this.button18.Click += new System.EventHandler(this.button18_Click);
-            // 
-            // button19
-            // 
-            this.button19.Location = new System.Drawing.Point(598, 503);
-            this.button19.Name = "button19";
-            this.button19.Size = new System.Drawing.Size(121, 23);
-            this.button19.TabIndex = 117;
-            this.button19.Text = "Сброс";
-            this.button19.UseVisualStyleBackColor = true;
-            this.button19.Click += new System.EventHandler(this.button19_Click);
-            // 
-            // button20
-            // 
-            this.button20.Location = new System.Drawing.Point(529, 435);
-            this.button20.Name = "button20";
-            this.button20.Size = new System.Drawing.Size(121, 23);
-            this.button20.TabIndex = 115;
-            this.button20.Text = "Сброс";
-            this.button20.UseVisualStyleBackColor = true;
-            this.button20.Click += new System.EventHandler(this.button20_Click);
-            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1392,13 +1372,11 @@
         private System.Windows.Forms.ComboBox comboBox10;
         private System.Windows.Forms.ComboBox comboBox9;
         private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.TextBox textBox23;
         private System.Windows.Forms.TextBox textBox22;
         private System.Windows.Forms.ComboBox comboBox4;
         private System.Windows.Forms.TextBox textBox21;
         private System.Windows.Forms.ComboBox comboBox3;
         private System.Windows.Forms.ComboBox comboBox2;
-        private System.Windows.Forms.Label label32;
         private System.Windows.Forms.Label label31;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.Label label28;

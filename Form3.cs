@@ -39,39 +39,25 @@ namespace АИС_банка_кредитов
             LoadKreditData();
             LoadPlatechData();
             LoadSearchCriteria();
+            LoadComboBox1FromBank();
+            LoadComboBox2FromBank();
+            LoadClientsToComboBox();
+            dataGridView2.SelectionChanged += dataGridView2_SelectionChanged;
+            dataGridView3.SelectionChanged += dataGridView3_SelectionChanged;
+            dataGridView4.SelectionChanged += dataGridView4_SelectionChanged;
             dataGridView1.ReadOnly = true;
             dataGridView2.ReadOnly = true;
             dataGridView3.ReadOnly = true;
-            dataGridView5.ReadOnly = true;
-            comboBox1.Items.AddRange(new object[] { "Сбербанк", "Альфа-Банк", "ВТБ", "Тинькофф", "Газпромбанк" });
+            dataGridView4.ReadOnly = true;
+            comboBox11.Items.AddRange(new object[] { "Потребительские нужды", "Жилищные цели", "Автокредит", "Образование", "Личные цели", "Бизнес" });
             comboBox2.Items.AddRange(new object[] { "Потребительские нужды", "Жилищные цели", "Автокредит", "Образование", "Личные цели", "Бизнес" });
             comboBox9.Items.AddRange(new object[] { "12 месяцев", "24 месяца", "36 месяцев", "48 месяцев", "60 месяцев" });
             comboBox3.Items.AddRange(new object[] { "12 месяцев", "24 месяца", "36 месяцев", "48 месяцев", "60 месяцев" });
             comboBox4.Items.AddRange(new object[] { "Активен", "Погашен" });
-            comboBox5.Items.AddRange(new object[] { "Рубли", "Доллары" });
-            comboBox10.Items.AddRange(new object[] { "5%", "10%", "15%", "20%", "25%" });
-            comboBox13.Items.AddRange(new object[] { "5%", "10%", "15%", "20%", "25%" });
-            comboBox11.Items.AddRange(new object[] { "Потребительские нужды", "Жилищные цели", "Автокредит", "Образование", "Личные цели", "Бизнес" });
-            textBox1.Validating += textBox1_Validating;
-            textBox2.Validating += textBox2_Validating;
-            textBox3.Validating += textBox3_Validating;
-            textBox4.Validating += textBox4_Validating;
-            textBox5.Validating += textBox5_Validating;
-            textBox6.Validating += textBox6_Validating;
-            textBox7.Validating += textBox7_Validating;
-            textBox8.Validating += textBox8_Validating;
-            textBox9.Validating += textBox9_Validating;
+            comboBox10.Items.AddRange(new object[] { "5.3%", "6.7%", "12%", "6.2%", "5.7%" });
+            comboBox13.Items.AddRange(new object[] { "5.3%", "6.7%", "12%", "6.2%", "5.7%" });
 
 
-        }
-
-        private void Form3_Load(object sender, EventArgs e)
-        {
-            LoadClientData();
-            LoadDogovorData();
-            LoadKreditData();
-            LoadPlatechData();
-            LoadSearchCriteria();
         }
 
         private string GetCurrentDate()
@@ -130,7 +116,8 @@ namespace АИС_банка_кредитов
                         dataGridView2.DataSource = clientsTable;
                         dataGridView2.Columns["ID"].Visible=false;
                         dataGridView2.Columns["ID_Кредита"].Visible = false;
-                        dataGridView2.Columns["ID_Клиента"].Visible = false;
+                        dataGridView2.Columns["ID_Клиента"].Visible = false; 
+                        dataGridView2.Columns["ID_Сотрудника"].Visible = false;
 
                     }
                 }
@@ -179,8 +166,8 @@ namespace АИС_банка_кредитов
                     {
                         DataTable clientsTable = new DataTable();
                         adapter.Fill(clientsTable);
-                        dataGridView5.DataSource = clientsTable;
-                        dataGridView5.Columns["ID"].Visible = false;
+                        dataGridView4.DataSource = clientsTable;
+                        dataGridView4.Columns["ID"].Visible = false;
                     }
                 }
             }
@@ -201,10 +188,74 @@ namespace АИС_банка_кредитов
             string number_phone = textBox9.Text;
             string data_reg = textBox10.Text;
 
-            // Валидация данных
+            // Проверка на пустые поля
+            if (string.IsNullOrWhiteSpace(surname) || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(lastName) ||
+                string.IsNullOrWhiteSpace(data_roda) || string.IsNullOrWhiteSpace(seria_pasporta) || string.IsNullOrWhiteSpace(number_pasport) ||
+                string.IsNullOrWhiteSpace(INN) || string.IsNullOrWhiteSpace(address) || string.IsNullOrWhiteSpace(number_phone) || string.IsNullOrWhiteSpace(data_reg))
+            {
+                MessageBox.Show("Все поля должны быть заполнены.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация ИНН (должен состоять из 8 цифр)
+            if (!IsValidINN(INN))
+            {
+                MessageBox.Show("ИНН должен состоять из 8 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация серии паспорта (должна состоять из 4 цифр)
+            if (!IsValidSeriaPasporta(seria_pasporta))
+            {
+                MessageBox.Show("Серия паспорта должна состоять из 4 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация номера паспорта (должен состоять из 6 цифр)
+            if (!IsValidNumberPasporta(number_pasport))
+            {
+                MessageBox.Show("Номер паспорта должен состоять из 6 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация телефона (начинается с +7 или 8 и 10 цифр)
+            if (!IsValidPhoneNumber(number_phone))
+            {
+                MessageBox.Show("Номер телефона должен начинаться с +7 или 8 и содержать 10 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация ФИО (только буквы)
+            if (!IsValidName(surname) || !IsValidName(name) || !IsValidName(lastName))
+            {
+                MessageBox.Show("ФИО должно содержать только буквы.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация адреса (только буквы)
+            if (!IsValidAddress(address))
+            {
+                MessageBox.Show("Адрес должен содержать только буквы.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация даты рождения
+            if (!IsValidDate(data_roda))
+            {
+                MessageBox.Show("Некорректная дата рождения.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация даты регистрации
+            if (!IsValidDate(data_reg))
+            {
+                MessageBox.Show("Некорректная дата регистрации.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Вставляем данные в базу данных
             try
             {
-                // Вставляем данные в базу данных
                 InsertKlientDataToDatabase(surname, name, lastName, INN, data_roda, seria_pasporta, number_pasport, address, number_phone, data_reg);
                 LoadClientData();
                 LoadDogovorData();
@@ -243,10 +294,74 @@ namespace АИС_банка_кредитов
             DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
             string clientId = selectedRow.Cells["ID"].Value.ToString();  // ID из скрытого столбца
 
-            // Валидация данных
+            // Проверка на пустые поля
+            if (string.IsNullOrWhiteSpace(surname) || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(lastName) ||
+                string.IsNullOrWhiteSpace(data_roda) || string.IsNullOrWhiteSpace(seria_pasporta) || string.IsNullOrWhiteSpace(number_pasporta) ||
+                string.IsNullOrWhiteSpace(INN) || string.IsNullOrWhiteSpace(address) || string.IsNullOrWhiteSpace(number_phone) || string.IsNullOrWhiteSpace(data_reg))
+            {
+                MessageBox.Show("Все поля должны быть заполнены.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация ИНН
+            if (!IsValidINN(INN))
+            {
+                MessageBox.Show("ИНН должен состоять из 8 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация серии паспорта
+            if (!IsValidSeriaPasporta(seria_pasporta))
+            {
+                MessageBox.Show("Серия паспорта должна состоять из 4 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация номера паспорта
+            if (!IsValidNumberPasporta(number_pasporta))
+            {
+                MessageBox.Show("Номер паспорта должен состоять из 6 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация телефона
+            if (!IsValidPhoneNumber(number_phone))
+            {
+                MessageBox.Show("Номер телефона должен начинаться с +7 или 8 и содержать 10 цифр.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация ФИО
+            if (!IsValidName(surname) || !IsValidName(name) || !IsValidName(lastName))
+            {
+                MessageBox.Show("ФИО должно содержать только буквы.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация адреса
+            if (!IsValidAddress(address))
+            {
+                MessageBox.Show("Адрес должен содержать только буквы.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация даты рождения
+            if (!IsValidDate(data_roda))
+            {
+                MessageBox.Show("Некорректная дата рождения.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Валидация даты регистрации
+            if (!IsValidDate(data_reg))
+            {
+                MessageBox.Show("Некорректная дата регистрации.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Обновляем данные клиента в базе
             try
             {
-                // Обновляем данные клиента в базе
                 UpdateKlientDataInDatabase(clientId, surname, name, lastName, INN, data_roda, seria_pasporta, number_pasporta, address, number_phone, data_reg);
                 LoadClientData();  // Перезагружаем данные в DataGridView
                 LoadDogovorData();
@@ -451,26 +566,26 @@ namespace АИС_банка_кредитов
             }
         }
 
-        private void dataGridView2_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void dataGridView2_SelectionChanged(object sender, EventArgs e)
         {
-            if (e.RowIndex >= 0)
+            if (dataGridView2.SelectedRows.Count > 0)
             {
-                DataGridViewRow row = dataGridView2.Rows[e.RowIndex];
+                DataGridViewRow selectedRow = dataGridView2.SelectedRows[0];
 
-                textBox11.Text = row.Cells["Фамилия"].Value.ToString();
-                textBox12.Text = row.Cells["Имя"].Value.ToString();
-                textBox13.Text = row.Cells["Отчество"].Value.ToString();
-                textBox14.Text = row.Cells["Дата_рождения"].Value.ToString();
-                textBox15.Text = row.Cells["Серия_паспорта"].Value.ToString();
-                textBox16.Text = row.Cells["Номер_паспорта"].Value.ToString();
-                textBox17.Text = row.Cells["ИНН"].Value.ToString();
-                textBox18.Text = row.Cells["Адрес_проживания"].Value.ToString();
-                textBox19.Text = row.Cells["Номер_телефона"].Value.ToString();
-                textBox20.Text = row.Cells["Сумма_кредита"].Value.ToString();
-                comboBox1.SelectedItem = row.Cells["Банк"].Value.ToString();
-                comboBox9.SelectedItem = row.Cells["Срок_кредита"].Value.ToString();
-                comboBox10.SelectedItem = row.Cells["Процентная_ставка"].Value.ToString();
-                comboBox11.SelectedItem = row.Cells["Цель_кредита"].Value.ToString();
+                textBox11.Text = selectedRow.Cells["Фамилия"].Value?.ToString() ?? "";
+                textBox12.Text = selectedRow.Cells["Имя"].Value?.ToString() ?? "";
+                textBox13.Text = selectedRow.Cells["Отчество"].Value?.ToString() ?? "";
+                textBox14.Text = selectedRow.Cells["Дата_рождения"].Value?.ToString() ?? "";
+                textBox15.Text = selectedRow.Cells["Серия_паспорта"].Value?.ToString() ?? "";
+                textBox16.Text = selectedRow.Cells["Номер_паспорта"].Value?.ToString() ?? "";
+                textBox17.Text = selectedRow.Cells["ИНН"].Value?.ToString() ?? "";
+                textBox18.Text = selectedRow.Cells["Адрес_проживания"].Value?.ToString() ?? "";
+                textBox19.Text = selectedRow.Cells["Номер_телефона"].Value?.ToString() ?? "";
+                textBox20.Text = selectedRow.Cells["Сумма_кредита"].Value?.ToString() ?? "";
+                comboBox1.SelectedItem = selectedRow.Cells["Банк"].Value?.ToString() ?? "";
+                comboBox9.SelectedItem = selectedRow.Cells["Срок_кредита"].Value?.ToString() ?? "";
+                comboBox10.SelectedItem = selectedRow.Cells["Процентная_ставка"].Value?.ToString() ?? "";
+                comboBox11.SelectedItem = selectedRow.Cells["Цель_кредита"].Value?.ToString() ?? "";
             }
         }
 
@@ -506,12 +621,11 @@ namespace АИС_банка_кредитов
             string srok = comboBox3.SelectedItem?.ToString() ?? "Не выбрано";
             string status = comboBox4.SelectedItem?.ToString() ?? "Не выбрано";
             string data_vidachi = textBox21.Text;
-            string valuta = comboBox5.SelectedItem?.ToString() ?? "Не выбрано";
             string suma = textBox22.Text;
             string proc = comboBox13.Text;
 
             // Вставляем данные в базу данных
-            InsertKreditDataToDatabase(cell_credit, srok, status, data_vidachi, valuta, suma, proc);
+            InsertKreditDataToDatabase(cell_credit, srok, status, data_vidachi, suma, proc);
 
             // Обновляем DataGridView
             LoadKreditData();
@@ -533,7 +647,6 @@ namespace АИС_банка_кредитов
             string srok = comboBox3.SelectedItem?.ToString() ?? "Не выбрано";
             string status = comboBox4.SelectedItem?.ToString() ?? "Не выбрано";
             string data_vidachi = textBox21.Text;
-            string valuta = comboBox5.SelectedItem?.ToString() ?? "Не выбрано";
             string suma = textBox22.Text;
             string proc = comboBox13.Text;
 
@@ -545,7 +658,7 @@ namespace АИС_банка_кредитов
             try
             {
                 // Обновляем данные договора
-                UpdateKreditDataInDatabase(kreditId, cell_credit, srok, status, data_vidachi, valuta, suma, proc);
+                UpdateKreditDataInDatabase(kreditId, cell_credit, srok, status, data_vidachi, suma, proc);
                 LoadKreditData(); // Перезагружаем данные
                 MessageBox.Show("Данные договора обновлены.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -556,21 +669,18 @@ namespace АИС_банка_кредитов
             ClearInputs();
         }
 
-        private void dataGridView3_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void dataGridView3_SelectionChanged(object sender, EventArgs e)
         {
-            // Проверяем, что выбрана строка (индекс строки больше или равен 0)
-            if (e.RowIndex >= 0)
+            if (dataGridView3.SelectedRows.Count > 0)
             {
-                DataGridViewRow selectedRow = dataGridView3.Rows[e.RowIndex];
+                DataGridViewRow selectedRow = dataGridView3.SelectedRows[0];
 
-                // Заполняем текстовые поля данными из выбранной строки
-                comboBox2.Text = selectedRow.Cells[2].Value?.ToString() ?? string.Empty;
-                comboBox3.Text = selectedRow.Cells[3].Value?.ToString() ?? string.Empty;
-                comboBox4.Text = selectedRow.Cells[4].Value?.ToString() ?? string.Empty;
-                textBox21.Text = selectedRow.Cells[5].Value?.ToString() ?? string.Empty;
-                comboBox5.Text = selectedRow.Cells[6].Value?.ToString() ?? string.Empty;
-                textBox22.Text = selectedRow.Cells[7].Value?.ToString() ?? string.Empty;
-                comboBox13.Text = selectedRow.Cells[8].Value.ToString() ?? string.Empty;        
+                textBox22.Text = selectedRow.Cells["Сумма_кредита"].Value?.ToString() ?? "";
+                textBox21.Text = selectedRow.Cells["Дата_выдачи_кредита"].Value?.ToString() ?? "";
+                comboBox2.SelectedItem = selectedRow.Cells["Цель_кредита"].Value?.ToString() ?? "";
+                comboBox3.SelectedItem = selectedRow.Cells["Срок_кредита"].Value?.ToString() ?? "";
+                comboBox4.SelectedItem = selectedRow.Cells["Статус_кредита"].Value?.ToString() ?? "";
+                comboBox13.SelectedItem = selectedRow.Cells["Процентная_ставка"].Value?.ToString() ?? "";
             }
         }
 
@@ -585,10 +695,25 @@ namespace АИС_банка_кредитов
 
             DataGridViewRow selectedRow = dataGridView3.SelectedRows[0];
 
-            // Удаляем данные из базы данных
+            // Удаляем данные из базы данных и заносим их в таблицу "Удаленные_Договоры"
             try
             {
-                DeleteKreditDataFromDatabase(selectedRow.Cells[0].Value.ToString());
+                string lastName = selectedRow.Cells["Фамилия"].Value.ToString();
+                string firstName = selectedRow.Cells["Имя"].Value.ToString();
+                string middleName = selectedRow.Cells["Отчество"].Value.ToString();
+                string birthDate = selectedRow.Cells["Дата_рождения"].Value.ToString();
+                int passportSeries = Convert.ToInt32(selectedRow.Cells["Серия_паспорта"].Value);
+                int passportNumber = Convert.ToInt32(selectedRow.Cells["Номер_паспорта"].Value);
+                int inn = Convert.ToInt32(selectedRow.Cells["ИНН"].Value);
+                string address = selectedRow.Cells["Адрес_проживания"].Value.ToString();
+                long phoneNumber = Convert.ToInt64(selectedRow.Cells["Номер_телефона"].Value);
+                string bank = selectedRow.Cells["Банк"].Value.ToString();
+                int loanAmount = Convert.ToInt32(selectedRow.Cells["Сумма_кредита"].Value);
+                string loanTerm = selectedRow.Cells["Срок_кредита"].Value.ToString();
+                string interestRate = selectedRow.Cells["Процентная_ставка"].Value.ToString();
+                string loanPurpose = selectedRow.Cells["Цель_кредита"].Value.ToString();
+
+                ArchiveAndDeleteKreditData(lastName, firstName, middleName, birthDate, passportSeries, passportNumber, inn, address, phoneNumber, bank, loanAmount, loanTerm, interestRate, loanPurpose);
                 LoadKreditData();
             }
             catch (Exception ex)
@@ -597,36 +722,94 @@ namespace АИС_банка_кредитов
             }
         }
 
-        private void InsertKreditDataToDatabase(string cell_credit, string srok, string status, string data_vidachi, string valuta, string suma, string proc)
+        private void ArchiveAndDeleteKreditData(string lastName, string firstName, string middleName, string birthDate, int passportSeries, int passportNumber, int inn, string address, long phoneNumber, string bank, int loanAmount, string loanTerm, string interestRate, string loanPurpose)
+        {
+            string dbPath = "C:\\Users\\KyCyMaMa\\Desktop\\Bank.db";
+            string connectionString = $"Data Source={dbPath};Version=3;";
+
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (SQLiteTransaction transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // Добавляем данные в таблицу "Удаленные_Договоры"
+                        string insertQuery = @"INSERT INTO Удаленные_Договоры (Фамилия, Имя, Отчество, Дата_рождения, Серия_паспорта, Номер_паспорта, ИНН, Адрес_проживания, Номер_телефона, Банк, Сумма_кредита, Срок_кредита, Процентная_ставка, Цель_кредита) 
+                                       VALUES (@LastName, @FirstName, @MiddleName, @BirthDate, @PassportSeries, @PassportNumber, @Inn, @Address, @PhoneNumber, @Bank, @LoanAmount, @LoanTerm, @InterestRate, @LoanPurpose)";
+                        using (SQLiteCommand insertCommand = new SQLiteCommand(insertQuery, connection, transaction))
+                        {
+                            insertCommand.Parameters.AddWithValue("@LastName", lastName);
+                            insertCommand.Parameters.AddWithValue("@FirstName", firstName);
+                            insertCommand.Parameters.AddWithValue("@MiddleName", middleName);
+                            insertCommand.Parameters.AddWithValue("@BirthDate", birthDate);
+                            insertCommand.Parameters.AddWithValue("@PassportSeries", passportSeries);
+                            insertCommand.Parameters.AddWithValue("@PassportNumber", passportNumber);
+                            insertCommand.Parameters.AddWithValue("@Inn", inn);
+                            insertCommand.Parameters.AddWithValue("@Address", address);
+                            insertCommand.Parameters.AddWithValue("@PhoneNumber", phoneNumber);
+                            insertCommand.Parameters.AddWithValue("@Bank", bank);
+                            insertCommand.Parameters.AddWithValue("@LoanAmount", loanAmount);
+                            insertCommand.Parameters.AddWithValue("@LoanTerm", loanTerm);
+                            insertCommand.Parameters.AddWithValue("@InterestRate", interestRate);
+                            insertCommand.Parameters.AddWithValue("@LoanPurpose", loanPurpose);
+
+                            insertCommand.ExecuteNonQuery();
+                        }
+
+                        // Удаляем данные из основной таблицы
+                        string deleteQuery = @"DELETE FROM Договор 
+                                       WHERE Фамилия = @LastName AND Имя = @FirstName AND Отчество = @MiddleName AND Серия_паспорта = @PassportSeries AND Номер_паспорта = @PassportNumber";
+                        using (SQLiteCommand deleteCommand = new SQLiteCommand(deleteQuery, connection, transaction))
+                        {
+                            deleteCommand.Parameters.AddWithValue("@LastName", lastName);
+                            deleteCommand.Parameters.AddWithValue("@FirstName", firstName);
+                            deleteCommand.Parameters.AddWithValue("@MiddleName", middleName);
+                            deleteCommand.Parameters.AddWithValue("@PassportSeries", passportSeries);
+                            deleteCommand.Parameters.AddWithValue("@PassportNumber", passportNumber);
+
+                            deleteCommand.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
+        private void InsertKreditDataToDatabase(string cell_credit, string srok, string status, string data_vidachi, string suma, string proc)
         {
             string currentDate = GetCurrentDate(); // Получение текущей даты
             using (SQLiteCommand command = new SQLiteCommand(connection))
             {
-                command.CommandText = "INSERT INTO Кредит (Цель_кредита, Срок_кредита, Статус_кредита, Дата_выдачи_кредита, Валюта_кредита, Сумма_кредита, Дата_платежа, Процентная_ставка) " +
-                                      "VALUES (@cell_credit, @srok, @status, @data_vidachi, @valuta, @suma, @data_platezha, @proc)";
+                command.CommandText = "INSERT INTO Кредит (Цель_кредита, Срок_кредита, Статус_кредита, Дата_выдачи_кредита, Сумма_кредита, Процентная_ставка) " +
+                                      "VALUES (@cell_credit, @srok, @status, @data_vidachi, @suma, @data_platezha, @proc)";
                 command.Parameters.AddWithValue("@cell_credit", cell_credit);
                 command.Parameters.AddWithValue("@srok", srok);
                 command.Parameters.AddWithValue("@status", status);
                 command.Parameters.AddWithValue("@data_vidachi", currentDate);
-                command.Parameters.AddWithValue("@valuta", valuta);
                 command.Parameters.AddWithValue("@suma", suma);
                 command.Parameters.AddWithValue("proc", proc);
                 command.ExecuteNonQuery();
             }
         }
 
-        private void UpdateKreditDataInDatabase(string id, string cell_credit, string srok, string status, string data_vidachi, string valuta, string suma, string proc)
+        private void UpdateKreditDataInDatabase(string id, string cell_credit, string srok, string status, string data_vidachi, string suma, string proc)
         {
             string currentDate = GetCurrentDate();
             using (SQLiteCommand command = new SQLiteCommand(connection))
             {
-                command.CommandText = "UPDATE Кредит SET Цель_кредита = @cell_credit, Срок_кредита = @srok, Статус_кредита = @status, Дата_выдачи_кредита = @data_vidachi, Валюта_кредита = @valuta, Сумма_кредита = @suma, Дата_платежа = @data_platezha, Процентная_ставка = @proc WHERE ID = @id";
+                command.CommandText = "UPDATE Кредит SET Цель_кредита = @cell_credit, Срок_кредита = @srok, Статус_кредита = @status, Дата_выдачи_кредита = @data_vidachi, Сумма_кредита = @suma, Процентная_ставка = @proc WHERE ID = @id";
                 command.Parameters.AddWithValue("id", id);
                 command.Parameters.AddWithValue("@cell_credit", cell_credit);
                 command.Parameters.AddWithValue("@srok", srok);
                 command.Parameters.AddWithValue("@status", status);
                 command.Parameters.AddWithValue("@data_vidachi", data_vidachi);
-                command.Parameters.AddWithValue("@valuta", valuta);
                 command.Parameters.AddWithValue("@suma", suma);
                 command.Parameters.AddWithValue("proc", proc);
                 command.ExecuteNonQuery();
@@ -648,15 +831,24 @@ namespace АИС_банка_кредитов
         private void button13_Click(object sender, EventArgs e)
         {
             // Получаем значения из полей ввода
-            string data_plata = textBox25.Text;
-            string tip_plata = textBox26.Text;
-            string vid_plata = textBox27.Text;
-            string summa_kredita = textBox28.Text;
-            string summa_plata = textBox29.Text;
-             
+            string cell_credit = textBox23.Text;
+            string data_plata = textBox24.Text;
+            string vid_plata = textBox25.Text;
+            string summa_kredita = textBox27.Text;
+            string summa_plata = textBox28.Text;
+            string fio = comboBox12.Text;
+            string remainingDebtStr = textBox29.Text;
+
+
+        if (string.IsNullOrWhiteSpace(cell_credit) || string.IsNullOrWhiteSpace(data_plata) || string.IsNullOrWhiteSpace(vid_plata) ||
+        string.IsNullOrWhiteSpace(summa_kredita) || string.IsNullOrWhiteSpace(summa_plata) || string.IsNullOrWhiteSpace(fio) || string.IsNullOrWhiteSpace(remainingDebtStr))
+            {
+                MessageBox.Show("Пожалуйста, заполните все поля.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return; // Прерываем выполнение метода, если есть пустые поля
+            }
 
             // Вставляем данные в базу данных
-            InsertPlatechDataToDatabase(data_plata, tip_plata, vid_plata, summa_kredita, summa_plata);
+            InsertPlatechDataToDatabase(fio, data_plata, vid_plata, summa_kredita, summa_plata, cell_credit, remainingDebtStr);
             LoadPlatechData();
             ClearInputs();
             MessageBox.Show("Данные успешно добавлены.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -665,30 +857,33 @@ namespace АИС_банка_кредитов
         private void button14_Click_1(object sender, EventArgs e)
         {
             // Проверяем, что строка в DataGridView выбрана
-            if (dataGridView5.SelectedRows.Count == 0)
+            if (dataGridView4.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Выберите договор для изменения.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             // Получаем данные из текстовых полей
-            string data_plata = textBox25.Text;
-            string tip_plata = textBox26.Text;
-            string vid_plata = textBox27.Text;
-            string summa_kredita = textBox28.Text;
-            string summa_plata = textBox29.Text;
-            
+            string cell_credit = textBox23.Text;
+            string data_plata = textBox24.Text;
+            string vid_plata = textBox25.Text;
+            string summa_kredita = textBox27.Text;
+            string summa_plata = textBox28.Text;
+            string fio = comboBox12.Text;
+            string remainingDebtStr = textBox29.Text;
+
 
             // Получаем ID выбранного договора из DataGridView2
-            DataGridViewRow selectedRow = dataGridView5.SelectedRows[0];
+            DataGridViewRow selectedRow = dataGridView4.SelectedRows[0];
             string kreditId = selectedRow.Cells["ID"].Value.ToString();// ID из скрытого столбца
 
 
             try
             {
                 // Обновляем данные договора
-                UpdatePlatechDataInDatabase(kreditId, data_plata, tip_plata, vid_plata, summa_plata, summa_kredita);
-                LoadPlatechData(); // Перезагружаем данные
+                UpdatePlatechDataInDatabase(kreditId, fio, data_plata, vid_plata, summa_kredita, summa_plata, cell_credit, remainingDebtStr);
+                LoadPlatechData(); 
+                ClearInputs();
                 MessageBox.Show("Данные договора обновлены.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -699,40 +894,38 @@ namespace АИС_банка_кредитов
 
         }
 
-        private void dataGridView5_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void dataGridView4_SelectionChanged(object sender, EventArgs e)
         {
-            // Проверяем, что выбрана строка (индекс строки больше или равен 0)
-            if (e.RowIndex >= 0)
+            if (dataGridView4.SelectedRows.Count > 0)
             {
-                DataGridViewRow selectedRow = dataGridView5.Rows[e.RowIndex];
+                DataGridViewRow selectedRow = dataGridView4.SelectedRows[0];
 
-                // Заполняем текстовые поля данными из выбранной строки
-                textBox25.Text = selectedRow.Cells[1].Value?.ToString() ?? string.Empty;
-                textBox26.Text = selectedRow.Cells[2].Value?.ToString() ?? string.Empty;
-                textBox27.Text = selectedRow.Cells[3].Value?.ToString() ?? string.Empty;
-                textBox28.Text = selectedRow.Cells[4].Value?.ToString() ?? string.Empty;
-                textBox29.Text = selectedRow.Cells[5].Value?.ToString() ?? string.Empty;
-
-                
+                textBox24.Text = selectedRow.Cells["Дата_платежа"].Value?.ToString() ?? "";
+                textBox25.Text = selectedRow.Cells["Вид_платежа"].Value?.ToString() ?? "";
+                textBox28.Text = selectedRow.Cells["Сумма_платежа"].Value?.ToString() ?? "";
+                textBox29.Text = selectedRow.Cells["Остаток_долга"].Value?.ToString() ?? "";
+                textBox23.Text = selectedRow.Cells["Цель_кредита"].Value?.ToString() ?? "";
+                comboBox12.SelectedItem = selectedRow.Cells["ФИО"].Value?.ToString() ?? "";
             }
         }
 
         private void button15_Click_1(object sender, EventArgs e)
         {
             // Получаем выбранную строку в DataGridView
-            if (dataGridView5.SelectedRows.Count == 0)
+            if (dataGridView4.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Выберите кредит для удаления.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Выберите платеж для удаления.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            DataGridViewRow selectedRow = dataGridView5.SelectedRows[0];
+            DataGridViewRow selectedRow = dataGridView4.SelectedRows[0];
 
             // Удаляем данные из базы данных
             try
             {
                 DeletePlatechDataFromDatabase(selectedRow.Cells[0].Value.ToString());
                 LoadPlatechData();
+                MessageBox.Show("Платеж успешно удален.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
@@ -740,19 +933,24 @@ namespace АИС_банка_кредитов
             }
         }
 
-        private void InsertPlatechDataToDatabase(string data_plata, string tip_plata, string vid_plata, string summa_kredita, string summa_plata)
+        private void InsertPlatechDataToDatabase(string fio, string data_plata, string vid_plata, string summa_kredita, string summa_plata, string cell_credit, string remainingDebtStr)
         {
+            string dbPath = "C:\\Users\\KyCyMaMa\\Desktop\\Bank.db";
+            string connectionString = $"Data Source={dbPath}";
             string currentDate = GetCurrentDate();
 
-            // Преобразуем суммы в числа для выполнения арифметической операции
+            // Преобразуем суммы в числа
             decimal sumaKreditaDecimal = 0;
             decimal sumaPlataDecimal = 0;
+            decimal remainingDebt = 0;
 
-            // Преобразуем строковые значения в числа, если они могут быть конвертированы
-            if (!decimal.TryParse(summa_kredita, out sumaKreditaDecimal))
+            if (!string.IsNullOrWhiteSpace(summa_kredita))
             {
-                MessageBox.Show("Ошибка при обработке суммы кредита.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                if (!decimal.TryParse(summa_kredita, out sumaKreditaDecimal))
+                {
+                    MessageBox.Show("Ошибка при обработке суммы кредита.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
 
             if (!decimal.TryParse(summa_plata, out sumaPlataDecimal))
@@ -761,30 +959,57 @@ namespace АИС_банка_кредитов
                 return;
             }
 
-            // Вычисляем остаток долга
-            decimal remainingDebt = sumaKreditaDecimal - sumaPlataDecimal;
-
-            using (SQLiteCommand command = new SQLiteCommand(connection))
+            if (!string.IsNullOrWhiteSpace(remainingDebtStr))
             {
-                command.CommandText = "INSERT INTO Платеж (Дата_платежа, Тип_платежа, Вид_платежа, Сумма_кредита, Сумма_платежа, Остаток_долга) " +
-                                      "VALUES (@data_plata, @tip_plata, @vid_plata, @summa_kredita, @summa_plata, @remaining_debt)";
+                if (!decimal.TryParse(remainingDebtStr, out remainingDebt))
+                {
+                    MessageBox.Show("Ошибка при обработке остатка долга.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
 
-                command.Parameters.AddWithValue("@data_plata", currentDate);
-                command.Parameters.AddWithValue("@tip_plata", tip_plata);
-                command.Parameters.AddWithValue("@vid_plata", vid_plata);
-                command.Parameters.AddWithValue("@summa_kredita", sumaKreditaDecimal.ToString("F2"));
-                command.Parameters.AddWithValue("@summa_plata", sumaPlataDecimal.ToString("F2"));
-                command.Parameters.AddWithValue("@remaining_debt", remainingDebt.ToString("F2"));
+            // Вычисляем остаток долга
+            if (sumaKreditaDecimal > 0)
+            {
+                remainingDebt = sumaKreditaDecimal - sumaPlataDecimal;
+            }
+            else
+            {
+                remainingDebt -= sumaPlataDecimal;
+            }
 
-                command.ExecuteNonQuery();
+            // Определяем статус кредита
+            string status = remainingDebt == 0 ? "Погашен" : "Активен";
+
+            using (var connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                using (var command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = "INSERT INTO Платеж (ФИО, Цель_кредита, Дата_платежа, Вид_платежа, Сумма_кредита, Сумма_платежа, Остаток_долга, Статус_кредита) " +
+                                          "VALUES (@fio, @cell_credit, @data_plata, @vid_plata, @summa_kredita, @summa_plata, @remaining_debt, @status)";
+
+                    command.Parameters.AddWithValue("@fio", fio);
+                    command.Parameters.AddWithValue("@cell_credit", cell_credit);
+                    command.Parameters.AddWithValue("@data_plata", currentDate);
+                    command.Parameters.AddWithValue("@vid_plata", vid_plata);
+                    command.Parameters.AddWithValue("@summa_kredita", sumaKreditaDecimal > 0 ? sumaKreditaDecimal.ToString("F2") : "");
+                    command.Parameters.AddWithValue("@summa_plata", sumaPlataDecimal.ToString("F2"));
+                    command.Parameters.AddWithValue("@remaining_debt", remainingDebt.ToString("F2"));
+                    command.Parameters.AddWithValue("@status", status);
+
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
-        private void UpdatePlatechDataInDatabase(string id, string data_plata, string tip_plata, string vid_plata, string summa_plata, string summa_kredita)
+        private void UpdatePlatechDataInDatabase(string id, string fio, string data_plata, string vid_plata, string summa_kredita, string summa_plata, string cell_credit, string remainingDebtStr)
         {
             // Преобразуем суммы в числа для выполнения арифметической операции
             decimal sumaKreditaDecimal = 0;
             decimal sumaPlataDecimal = 0;
+            decimal remainingDebt = 0;
 
             // Преобразуем строковые значения в числа, если они могут быть конвертированы
             if (!decimal.TryParse(summa_kredita, out sumaKreditaDecimal))
@@ -799,23 +1024,52 @@ namespace АИС_банка_кредитов
                 return;
             }
 
+            if (!string.IsNullOrWhiteSpace(remainingDebtStr))
+            {
+                if (!decimal.TryParse(remainingDebtStr, out remainingDebt))
+                {
+                    MessageBox.Show("Ошибка при обработке остатка долга.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+
             // Вычисляем остаток долга
-            decimal remainingDebt = sumaKreditaDecimal - sumaPlataDecimal;
+            if (sumaKreditaDecimal > 0)
+            {
+                remainingDebt = sumaKreditaDecimal - sumaPlataDecimal;
+            }
+            else
+            {
+                remainingDebt -= sumaPlataDecimal;
+            }
+
+            // Определяем статус кредита
+            string status = remainingDebt == 0 ? "Погашен" : "Активен";
 
             string currentDate = GetCurrentDate();
-            using (SQLiteCommand command = new SQLiteCommand(connection))
-            {
-                command.CommandText = "UPDATE Платеж SET Дата_платежа = @data_plata, Тип_платежа = @tip_plata, Вид_платежа = @vid_plata, " +
-                              "Сумма_кредита = @summa_kredita, Остаток_долга = @remaining_debt, Сумма_платежа = @summa_plata WHERE ID = @id";
 
-                command.Parameters.AddWithValue("@id", id);
-                command.Parameters.AddWithValue("@data_plata", currentDate);
-                command.Parameters.AddWithValue("@tip_plata", tip_plata);
-                command.Parameters.AddWithValue("@vid_kredita", vid_plata);
-                command.Parameters.AddWithValue("@summa_kredita", sumaKreditaDecimal.ToString("F2"));
-                command.Parameters.AddWithValue("@summa_plata", sumaPlataDecimal.ToString("F2"));
-                command.Parameters.AddWithValue("@remaining_debt", remainingDebt.ToString("F2"));
-                command.ExecuteNonQuery();
+            using (var connection = new SQLiteConnection("Data Source=C:\\Users\\KyCyMaMa\\Desktop\\Bank.db"))
+            {
+                connection.Open();
+
+                using (var command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = "UPDATE Платеж SET ФИО = @fio, Цель_кредита = @cell_credit, Дата_платежа = @data_plata, Вид_платежа = @vid_plata, " +
+                                          "Сумма_кредита = @summa_kredita, Сумма_платежа = @summa_plata, Остаток_долга = @remaining_debt, Статус_кредита = @status " +
+                                          "WHERE ID = @id";
+
+                    command.Parameters.AddWithValue("@fio", fio);
+                    command.Parameters.AddWithValue("@cell_credit", cell_credit);
+                    command.Parameters.AddWithValue("@data_plata", currentDate);
+                    command.Parameters.AddWithValue("@vid_plata", vid_plata);
+                    command.Parameters.AddWithValue("@summa_kredita", sumaKreditaDecimal > 0 ? sumaKreditaDecimal.ToString("F2") : "");
+                    command.Parameters.AddWithValue("@summa_plata", sumaPlataDecimal.ToString("F2"));
+                    command.Parameters.AddWithValue("@remaining_debt", remainingDebt.ToString("F2"));
+                    command.Parameters.AddWithValue("@status", status);
+                    command.Parameters.AddWithValue("@id", id);
+
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
@@ -829,6 +1083,58 @@ namespace АИС_банка_кредитов
             }
         }
 
+        private void comboBox12_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBox12.SelectedItem != null)
+            {
+                string selectedClient = comboBox12.SelectedItem.ToString();
+                string connectionString = @"Data Source=C:\Users\KyCyMaMa\Desktop\Bank.db;Version=3;";
+
+                using (var connection = new SQLiteConnection(connectionString))
+                {
+                    connection.Open();
+                    // SQL-запрос для объединения данных и получения цели кредита
+                    using (var command = new SQLiteCommand(
+                        @"SELECT Кредит.Цель_кредита, Кредит.Сумма_кредита
+                  FROM Клиент
+                  INNER JOIN Кредит ON Клиент.ID = Кредит.ID
+                  WHERE Клиент.Фамилия || ' ' || Клиент.Имя || ' ' || Клиент.Отчество = @FullName",
+                        connection))
+                    {
+                        command.Parameters.AddWithValue("@FullName", selectedClient);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                textBox23.Text = reader["Цель_кредита"].ToString();
+                                textBox27.Text = reader["Сумма_кредита"].ToString();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void LoadClientsToComboBox()
+        {
+            string connectionString = @"Data Source=C:\Users\KyCyMaMa\Desktop\Bank.db;Version=3;";
+
+            using (var connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (var command = new SQLiteCommand("SELECT Фамилия || ' ' || Имя || ' ' || Отчество AS FullName FROM Клиент", connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            comboBox12.Items.Add(reader["FullName"].ToString());
+                        }
+                    }
+                }
+            }
+        }
+
         private void InitializeFormComponents()
         {
             // Создаем объект MenuStrip
@@ -836,17 +1142,14 @@ namespace АИС_банка_кредитов
 
             // Создаем элементы меню
             ToolStripMenuItem refreshMenuItem = new ToolStripMenuItem("Обновить");
-            ToolStripMenuItem historyMenuItem = new ToolStripMenuItem("История");
             ToolStripMenuItem exitMenuItem = new ToolStripMenuItem("Выход");
 
             // Привязываем обработчики событий к пунктам меню
             refreshMenuItem.Click += RefreshMenuItem_Click;
-            historyMenuItem.Click += HistoryMenuItem_Click;
             exitMenuItem.Click += ExitMenuItem_Click;
 
             // Добавляем элементы меню в MenuStrip
             menuStrip.Items.Add(refreshMenuItem);
-            menuStrip.Items.Add(historyMenuItem);
             menuStrip.Items.Add(exitMenuItem);
 
             // Устанавливаем MenuStrip для формы
@@ -867,12 +1170,6 @@ namespace АИС_банка_кредитов
             LoadKreditData();
             LoadPlatechData();
             MessageBox.Show("Данные обновлены", "Обновление");
-        }
-
-        private void HistoryMenuItem_Click(object sender, EventArgs e)
-        {
-            // Логика для кнопки "История"
-            MessageBox.Show("История действий", "История");
         }
 
         private void ExitMenuItem_Click(object sender, EventArgs e)
@@ -939,7 +1236,13 @@ namespace АИС_банка_кредитов
                         while (reader.Read())
                         {
                             // Добавляем имена столбцов в ComboBox
-                            comboBox6.Items.Add(reader["name"].ToString());
+                            string columnName = reader["name"].ToString();
+
+                            // Пропускаем столбец с именем "ID"
+                            if (columnName != "ID")
+                            {
+                                comboBox6.Items.Add(columnName);
+                            }
                         }
                     }
                 }
@@ -951,7 +1254,13 @@ namespace АИС_банка_кредитов
                         while (reader.Read())
                         {
                             // Добавляем имена столбцов в ComboBox
-                            comboBox7.Items.Add(reader["name"].ToString());
+                            string columnName1 = reader["name"].ToString();
+
+                            // Пропускаем столбец с именем "ID"
+                            if (columnName1 != "ID" && columnName1 != "ID_Клиента" && columnName1 != "ID_Кредита" && columnName1 != "ID_Сотрудника")
+                            {
+                                comboBox7.Items.Add(columnName1);
+                            }
                         }
                     }
                 }
@@ -963,7 +1272,13 @@ namespace АИС_банка_кредитов
                         while (reader.Read())
                         {
                             // Добавляем имена столбцов в ComboBox
-                            comboBox8.Items.Add(reader["name"].ToString());
+                            string columnName2 = reader["name"].ToString();
+
+                            // Пропускаем столбец с именем "ID"
+                            if (columnName2 != "ID" && columnName2 != "ID_Платежа")
+                            {
+                                comboBox8.Items.Add(columnName2);
+                            }
                         }
                     }
                 }
@@ -975,15 +1290,24 @@ namespace АИС_банка_кредитов
                         while (reader.Read())
                         {
                             // Добавляем имена столбцов в ComboBox
-                            comboBox12.Items.Add(reader["name"].ToString());
+                            string columnName3 = reader["name"].ToString();
+
+                            // Пропускаем столбец с именем "ID"
+                            if (columnName3 != "ID")
+                            {
+                                comboBox14.Items.Add(columnName3);
+                            }
                         }
                     }
                 }
 
                 // Установить значение по умолчанию, если список не пуст
-                if (comboBox6.Items.Count > 0)
+                if (comboBox6.Items.Count > 0 || comboBox7.Items.Count > 0 || comboBox8.Items.Count > 0 || comboBox14.Items.Count > 0)
                 {
                     comboBox6.SelectedIndex = 0;
+                    comboBox7.SelectedIndex = 0;
+                    comboBox8.SelectedIndex = 0;
+                    comboBox14.SelectedIndex = 0;
                 }
                 else
                 {
@@ -1071,7 +1395,7 @@ namespace АИС_банка_кредитов
         private void button16_Click(object sender, EventArgs e)
         {
             // Получаем выбранный критерий поиска
-            string selectedCriteria = comboBox12.SelectedItem?.ToString();
+            string selectedCriteria = comboBox14.SelectedItem?.ToString();
             string searchValue = textBox33.Text.Trim();
 
             if (string.IsNullOrEmpty(selectedCriteria) || string.IsNullOrEmpty(searchValue))
@@ -1094,7 +1418,7 @@ namespace АИС_банка_кредитов
                         adapter.Fill(searchResults);
 
                         // Обновляем DataGridView
-                        dataGridView5.DataSource = searchResults;
+                        dataGridView4.DataSource = searchResults;
                     }
                 }
             }
@@ -1138,121 +1462,53 @@ namespace АИС_банка_кредитов
             comboBox2.SelectedIndex = -1;
             comboBox3.SelectedIndex = -1;
             comboBox4.SelectedIndex = -1;
-            comboBox5.SelectedIndex = -1;
             comboBox9.SelectedIndex = -1;
             comboBox10.SelectedIndex = -1;
             comboBox11.SelectedIndex = -1;
         }
 
-        // Обработчик для фамилии
-        private void textBox1_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        // Валидация ИНН (должен состоять из 8 цифр)
+        private bool IsValidINN(string inn)
         {
-            if (!IsOnlyLetters(textBox1.Text))
-            {
-                MessageBox.Show("Фамилия должна содержать только буквы.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
+            return inn.Length == 8 && inn.All(char.IsDigit);
         }
 
-        // Обработчик для имени
-        private void textBox2_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        // Валидация серии паспорта (должна состоять из 4 цифр)
+        private bool IsValidSeriaPasporta(string seria)
         {
-            if (!IsOnlyLetters(textBox2.Text))
-            {
-                MessageBox.Show("Имя должно содержать только буквы.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
+            return seria.Length == 4 && seria.All(char.IsDigit);
         }
 
-        // Обработчик для отчества
-        private void textBox3_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        // Валидация номера паспорта (должен состоять из 6 цифр)
+        private bool IsValidNumberPasporta(string number)
         {
-            if (!IsOnlyLetters(textBox3.Text))
-            {
-                MessageBox.Show("Отчество должно содержать только буквы.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
+            return number.Length == 6 && number.All(char.IsDigit);
         }
 
-        // Обработчик для даты рождения
-        private void textBox4_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        // Валидация телефона (начинается с +7 или 8 и 10 цифр)
+        private bool IsValidPhoneNumber(string phone)
         {
-            if (!IsValidDate(textBox4.Text))
-            {
-                MessageBox.Show("Дата рождения должна быть в формате ДД.ММ.ГГГГ.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
+            return (phone.StartsWith("+7") && phone.Length == 12 && phone.Substring(2).All(char.IsDigit)) ||
+                   (phone.StartsWith("8") && phone.Length == 11 && phone.Substring(1).All(char.IsDigit));
         }
 
-        // Обработчик для серии паспорта
-        private void textBox5_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        // Валидация имени/фамилии (только буквы)
+        private bool IsValidName(string name)
         {
-            if (!IsOnlyDigits(textBox5.Text, 4))
-            {
-                MessageBox.Show("Серия паспорта должна содержать ровно 4 цифры.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
+            return name.All(c => char.IsLetter(c) || c == ' ');
         }
 
-        // Обработчик для номера паспорта
-        private void textBox6_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        // Валидация адреса (только буквы)
+        private bool IsValidAddress(string address)
         {
-            if (!IsOnlyDigits(textBox6.Text, 6))
-            {
-                MessageBox.Show("Номер паспорта должен содержать ровно 6 цифр.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
+            return address.All(c => char.IsLetter(c) || c == ' ');
         }
 
-        // Обработчик для ИНН
-        private void textBox7_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        // Валидация даты (формат: ДД.ММ.ГГГГ)
+        private bool IsValidDate(string date)
         {
-            if (!IsOnlyDigits(textBox7.Text, 8))
-            {
-                MessageBox.Show("ИНН должен содержать ровно 8 цифр.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
-        }
-
-        // Обработчик для адреса
-        private void textBox8_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!IsOnlyLetters(textBox8.Text))
-            {
-                MessageBox.Show("Адрес должен содержать только буквы.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
-        }
-
-        // Обработчик для номера телефона
-        private void textBox9_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (!IsValidPhoneNumber(textBox9.Text))
-            {
-                MessageBox.Show("Номер телефона должен содержать 11 цифр и начинаться с +7 или 8.", "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
-        }
-
-        // Методы проверки
-        private bool IsOnlyLetters(string input)
-        {
-            return System.Text.RegularExpressions.Regex.IsMatch(input, @"^[а-яА-ЯёЁa-zA-Z\s]+$");
-        }
-
-        private bool IsOnlyDigits(string input, int length)//валидация длины
-        {
-            return System.Text.RegularExpressions.Regex.IsMatch(input, $@"^\d{{{length}}}$");
-        }
-
-        private bool IsValidPhoneNumber(string input)//валидация номера телефона
-        {
-            return System.Text.RegularExpressions.Regex.IsMatch(input, @"^(?:\+7|8)\d{10}$");
-        }
-
-        private bool IsValidDate(string input)//валидация даты
-        {
-            return DateTime.TryParseExact(input, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out _);
+            DateTime result;
+            return DateTime.TryParseExact(date, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out result);
         }
 
         private void button17_Click(object sender, EventArgs e)//Сброс поиска клиент
@@ -1346,7 +1602,7 @@ namespace АИС_банка_кредитов
         {
             // Очищаем поле поиска и сбрасываем выбранный критерий
             textBox33.Clear();
-            comboBox12.SelectedIndex = -1; // Сбрасываем выбор в ComboBox
+            comboBox14.SelectedIndex = -1; // Сбрасываем выбор в ComboBox
 
             try
             {
@@ -1361,7 +1617,7 @@ namespace АИС_банка_кредитов
                         adapter.Fill(allData);
 
                         // Обновляем DataGridView с полными данными
-                        dataGridView5.DataSource = allData;
+                        dataGridView4.DataSource = allData;
                     }
                 }
             }
@@ -1370,6 +1626,69 @@ namespace АИС_банка_кредитов
                 MessageBox.Show($"Ошибка при сбросе фильтра: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void LoadComboBox1FromBank()
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+
+                    
+                    string query = "SELECT DISTINCT Название FROM Банк";
+
+                    using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        comboBox1.Items.Clear(); 
+                        while (reader.Read())
+                        {
+                            comboBox1.Items.Add(reader.GetString(0));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при загрузке данных в ComboBox1: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void LoadComboBox2FromBank()
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+
+                    // Запрос для получения данных из столбца "ФИО" таблицы "Сотрудник"
+                    string query = "SELECT DISTINCT Название FROM [Цели кредита]";
+
+                    using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        comboBox2.Items.Clear();
+                        comboBox11.Items.Clear();// Очистить ComboBox перед загрузкой данных
+                        while (reader.Read())
+                        {
+                            
+                            comboBox2.Items.Add(reader.GetString(0));
+                            comboBox11.Items.Add(reader.GetString(1));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при загрузке данных в ComboBox1: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+       
+
+
+
     }
 }
     

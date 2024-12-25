@@ -31,16 +31,15 @@ namespace АИС_банка_кредитов
             textBox9.Validating += textBox9_Validating;
             dataGridView1.SelectionChanged += dataGridView1_SelectionChanged;
             dataGridView1.ReadOnly = true;
+            LoadSearchCriteria();
         }
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            //comboBox1.Items.AddRange(new object[] { "Сбербанк", "Альфа-Банк", "ВТБ", "Тинькофф", "Газпромбанк" });
             comboBox2.Items.AddRange(new object[] { "12 месяцев", "24 месяца", "36 месяцев", "48 месяцев", "60 месяцев" });
-            comboBox3.Items.AddRange(new object[] { "5%", "10%", "15%", "20%", "25%" });
+            comboBox3.Items.AddRange(new object[] { "5.3%", "6.7%", "12%", "6.2%", "5.7%" });
             comboBox4.Items.AddRange(new object[] { "Потребительские нужды", "Жилищные цели", "Автокредит", "Образование", "Личные цели", "Бизнес" });
             LoadDogovorData();
-            LoadComboBox5FromSotrudnik();
             LoadComboBox1FromBank();
         }
 
@@ -51,9 +50,13 @@ namespace АИС_банка_кредитов
 
         private void LoadDogovorData()
         {
+            string dbPath = "C:\\Users\\KyCyMaMa\\Desktop\\Bank.db";
+            string connectionString = $"Data Source={dbPath}";
+
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
                 connection.Open();
+
                 string query = "SELECT * FROM Договор";
 
                 using (SQLiteCommand command = new SQLiteCommand(query, connection))
@@ -64,8 +67,8 @@ namespace АИС_банка_кредитов
                         adapter.Fill(clientsTable);
                         dataGridView1.DataSource = clientsTable;
                         dataGridView1.Columns["ID"].Visible = false;
-                        dataGridView1.Columns["ID_Клиента"].Visible = false;
                         dataGridView1.Columns["ID_Кредита"].Visible = false;
+                        dataGridView1.Columns["ID_Клиента"].Visible = false;
                         dataGridView1.Columns["ID_Сотрудника"].Visible = false;
 
                     }
@@ -139,32 +142,6 @@ namespace АИС_банка_кредитов
                         MessageBox.Show($"Ошибка при вставке данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-            }
-        }
-
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            if (dataGridView1.SelectedRows.Count > 0)
-            {
-                int selectedID = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["ID"].Value);
-                using (SQLiteConnection connection = new SQLiteConnection(connectionString))
-                {
-                    connection.Open();
-                    string query = "DELETE FROM Договор WHERE ID = @ID";
-                    using (SQLiteCommand command = new SQLiteCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@ID", selectedID);
-                        command.ExecuteNonQuery();
-                    }
-                }
-
-                LoadDogovorData();
-                MessageBox.Show("Запись удалена.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                MessageBox.Show("Выберите строку для удаления.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -330,34 +307,6 @@ namespace АИС_банка_кредитов
             }
         }
 
-        private void LoadComboBox5FromSotrudnik()
-        {
-            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
-            {
-                try
-                {
-                    connection.Open();
-
-                    // Запрос для получения данных из столбца "ФИО" таблицы "Сотрудник"
-                    string query = "SELECT DISTINCT ФИО FROM Сотрудник";
-
-                    using (SQLiteCommand command = new SQLiteCommand(query, connection))
-                    using (SQLiteDataReader reader = command.ExecuteReader())
-                    {
-                        comboBox5.Items.Clear(); // Очистить ComboBox перед загрузкой данных
-                        while (reader.Read())
-                        {
-                            // Добавляем значения столбца "ФИО" в ComboBox
-                            comboBox5.Items.Add(reader.GetString(0));
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при загрузке данных в ComboBox5: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
 
         private void LoadComboBox1FromBank()
         {
@@ -376,7 +325,6 @@ namespace АИС_банка_кредитов
                         comboBox1.Items.Clear(); // Очистить ComboBox перед загрузкой данных
                         while (reader.Read())
                         {
-                            // Добавляем значения столбца "ФИО" в ComboBox
                             comboBox1.Items.Add(reader.GetString(0));
                         }
                     }
@@ -388,6 +336,108 @@ namespace АИС_банка_кредитов
             }
         }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            // Получаем выбранный критерий поиска
+            string selectedCriteria = comboBox5.SelectedItem?.ToString();
+            string searchValue = textBox11.Text.Trim();
 
+            if (string.IsNullOrEmpty(selectedCriteria) || string.IsNullOrEmpty(searchValue))
+            {
+                MessageBox.Show("Выберите критерий и введите значение для поиска.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                // Формируем запрос поиска
+                string query = $"SELECT * FROM Договор WHERE {selectedCriteria} LIKE @searchValue";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@searchValue", $"%{searchValue}%");
+                    using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(command))
+                    {
+                        DataTable searchResults = new DataTable();
+                        adapter.Fill(searchResults);
+
+                        // Обновляем DataGridView
+                        dataGridView1.DataSource = searchResults;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при поиске данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            // Очищаем поле поиска и сбрасываем выбранный критерий
+            textBox11.Clear();
+            comboBox5.SelectedIndex = -1; // Сбрасываем выбор в ComboBox
+
+            try
+            {
+                // Формируем запрос для получения всех данных из таблицы Клиент
+                string query = "SELECT * FROM Договор";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(command))
+                    {
+                        DataTable allData = new DataTable();
+                        adapter.Fill(allData);
+
+                        // Обновляем DataGridView с полными данными
+                        dataGridView1.DataSource = allData;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сбросе фильтра: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadSearchCriteria()
+        {
+            try
+            {
+                
+                string query1 = "PRAGMA table_info(Договор)";
+                using (SQLiteCommand command = new SQLiteCommand(query1, connection))
+                {
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            // Добавляем имена столбцов в ComboBox
+                            string columnName1 = reader["name"].ToString();
+
+                            // Пропускаем столбец с именем "ID"
+                            if (columnName1 != "ID" && columnName1 != "ID_Клиента" && columnName1 != "ID_Кредита" && columnName1 != "ID_Сотрудника")
+                            {
+                                comboBox5.Items.Add(columnName1);
+                            }
+                        }
+                    }
+                }
+                // Установить значение по умолчанию, если список не пуст
+                if (comboBox5.Items.Count > 0 )
+                {
+                    comboBox5.SelectedIndex = 0;
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось загрузить критерии поиска. Таблица не содержит столбцов.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке критериев: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }

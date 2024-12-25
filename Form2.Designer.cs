@@ -58,14 +58,18 @@
             this.comboBox3 = new System.Windows.Forms.ComboBox();
             this.comboBox4 = new System.Windows.Forms.ComboBox();
             this.textBox10 = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
-            this.comboBox5 = new System.Windows.Forms.ComboBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label15 = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.label16 = new System.Windows.Forms.Label();
+            this.textBox11 = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
+            this.comboBox5 = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGridView1
@@ -322,16 +326,6 @@
             this.textBox10.Size = new System.Drawing.Size(115, 22);
             this.textBox10.TabIndex = 65;
             // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(4, 324);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(141, 34);
-            this.button2.TabIndex = 66;
-            this.button2.Text = "Удалить";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(3, 284);
@@ -346,30 +340,20 @@
             // 
             this.button4.Location = new System.Drawing.Point(6, 363);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(139, 34);
+            this.button4.Size = new System.Drawing.Size(154, 34);
             this.button4.TabIndex = 68;
             this.button4.Text = "Совершить платеж";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
-            // comboBox5
-            // 
-            this.comboBox5.FormattingEnabled = true;
-            this.comboBox5.Location = new System.Drawing.Point(257, 197);
-            this.comboBox5.Name = "comboBox5";
-            this.comboBox5.Size = new System.Drawing.Size(112, 24);
-            this.comboBox5.TabIndex = 69;
-            // 
             // panel1
             // 
-            this.panel1.BackColor = System.Drawing.SystemColors.InactiveBorder;
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.BackColor = System.Drawing.SystemColors.ControlLight;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.label15);
             this.panel1.Controls.Add(this.button4);
             this.panel1.Controls.Add(this.textBox1);
-            this.panel1.Controls.Add(this.button2);
             this.panel1.Controls.Add(this.button3);
-            this.panel1.Controls.Add(this.comboBox5);
             this.panel1.Controls.Add(this.textBox2);
             this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.textBox3);
@@ -404,20 +388,71 @@
             this.panel1.Size = new System.Drawing.Size(374, 402);
             this.panel1.TabIndex = 70;
             // 
-            // label15
+            // panel2
             // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(254, 178);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(78, 16);
-            this.label15.TabIndex = 70;
-            this.label15.Text = "Сотрудник";
+            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel2.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.panel2.Controls.Add(this.comboBox5);
+            this.panel2.Controls.Add(this.label16);
+            this.panel2.Controls.Add(this.textBox11);
+            this.panel2.Controls.Add(this.button2);
+            this.panel2.Controls.Add(this.button5);
+            this.panel2.Location = new System.Drawing.Point(944, 422);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(370, 174);
+            this.panel2.TabIndex = 71;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(4, 12);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(47, 16);
+            this.label16.TabIndex = 72;
+            this.label16.Text = "Поиск";
+            // 
+            // textBox11
+            // 
+            this.textBox11.Location = new System.Drawing.Point(5, 31);
+            this.textBox11.Name = "textBox11";
+            this.textBox11.Size = new System.Drawing.Size(134, 22);
+            this.textBox11.TabIndex = 73;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(7, 89);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(132, 23);
+            this.button2.TabIndex = 74;
+            this.button2.Text = "Искать";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(7, 118);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(132, 23);
+            this.button5.TabIndex = 75;
+            this.button5.Text = "Сброс";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
+            // comboBox5
+            // 
+            this.comboBox5.FormattingEnabled = true;
+            this.comboBox5.Location = new System.Drawing.Point(5, 60);
+            this.comboBox5.Name = "comboBox5";
+            this.comboBox5.Size = new System.Drawing.Size(134, 24);
+            this.comboBox5.TabIndex = 76;
             // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1326, 456);
+            this.BackColor = System.Drawing.SystemColors.InactiveBorder;
+            this.ClientSize = new System.Drawing.Size(1326, 608);
+            this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.dataGridView1);
             this.Margin = new System.Windows.Forms.Padding(4);
@@ -427,6 +462,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -462,11 +499,14 @@
         private System.Windows.Forms.ComboBox comboBox3;
         private System.Windows.Forms.ComboBox comboBox4;
         private System.Windows.Forms.TextBox textBox10;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.ComboBox comboBox5;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.TextBox textBox11;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.ComboBox comboBox5;
     }
 }

@@ -29,6 +29,7 @@ namespace АИС_банка_кредитов
             InitializeComponent();
             LoadPlatechData();
             LoadClientsToComboBox();
+            LoadSearchCriteria();
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             dataGridView1.SelectionChanged += dataGridView1_SelectionChanged;
         }
@@ -71,7 +72,6 @@ namespace АИС_банка_кредитов
             // Вставляем данные в базу данных
             InsertPlatechDataToDatabase(fio, data_plata, vid_plata, summa_kredita, summa_plata, cell_credit, remainingDebtStr);
             LoadPlatechData();
-            MessageBox.Show("Данные успешно добавлены.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void InsertPlatechDataToDatabase(string fio, string data_plata, string vid_plata, string summa_kredita, string summa_plata, string cell_credit, string remainingDebtStr)
@@ -218,6 +218,110 @@ namespace АИС_банка_кредитов
                 textBox6.Text = selectedRow.Cells["Остаток_долга"].Value?.ToString() ?? "";
                 textBox8.Text = selectedRow.Cells["Цель_кредита"].Value?.ToString() ?? "";
                 comboBox1.SelectedItem = selectedRow.Cells["ФИО"].Value?.ToString() ?? "";
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            // Получаем выбранный критерий поиска
+            string selectedCriteria = comboBox2.SelectedItem?.ToString();
+            string searchValue = textBox2.Text.Trim();
+
+            if (string.IsNullOrEmpty(selectedCriteria) || string.IsNullOrEmpty(searchValue))
+            {
+                MessageBox.Show("Выберите критерий и введите значение для поиска.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                // Формируем запрос поиска
+                string query = $"SELECT * FROM Платеж WHERE {selectedCriteria} LIKE @searchValue";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@searchValue", $"%{searchValue}%");
+                    using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(command))
+                    {
+                        DataTable searchResults = new DataTable();
+                        adapter.Fill(searchResults);
+
+                        // Обновляем DataGridView
+                        dataGridView1.DataSource = searchResults;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при поиске данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            // Очищаем поле поиска и сбрасываем выбранный критерий
+            textBox2.Clear();
+            comboBox2.SelectedIndex = -1; // Сбрасываем выбор в ComboBox
+
+            try
+            {
+                // Формируем запрос для получения всех данных из таблицы Клиент
+                string query = "SELECT * FROM Платеж";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(command))
+                    {
+                        DataTable allData = new DataTable();
+                        adapter.Fill(allData);
+
+                        // Обновляем DataGridView с полными данными
+                        dataGridView1.DataSource = allData;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сбросе фильтра: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadSearchCriteria()
+        {
+            try
+            {
+
+                string query1 = "PRAGMA table_info(Платеж)";
+                using (SQLiteCommand command = new SQLiteCommand(query1, connection))
+                {
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            // Добавляем имена столбцов в ComboBox
+                            string columnName1 = reader["name"].ToString();
+
+                            // Пропускаем столбец с именем "ID"
+                            if (columnName1 != "ID")
+                            {
+                                comboBox2.Items.Add(columnName1);
+                            }
+                        }
+                    }
+                }
+                // Установить значение по умолчанию, если список не пуст
+                if (comboBox2.Items.Count > 0)
+                {
+                    comboBox2.SelectedIndex = 0;
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось загрузить критерии поиска. Таблица не содержит столбцов.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке критериев: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
